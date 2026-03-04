@@ -1,4 +1,5 @@
 import { IProductAbc } from "./abc";
+import { IMlProductBase } from "./mercado-livre";
 import { IExternalProduct, IProductBaseCache } from "./product";
 import { IStock } from "./stock";
 import { IProductTrendCache } from "./trend";
@@ -47,3 +48,8 @@ export type ISalesDashboardItem<TProduct extends IProductBaseCache> = TProduct &
   IProductAbc & {
     stock: IStock;
   };
+
+export type SalesRow = ISalesDashboardItem<IMlProductBase> & {
+  resolvedMonths: IMonthBucket[];
+  currentMonth: IMonthBucket | null;
+};

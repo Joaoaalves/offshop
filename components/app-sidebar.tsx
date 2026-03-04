@@ -30,7 +30,7 @@ const AppSideBar = () => {
     const pathname = usePathname()
 
     const isActive = (path: string) =>
-        pathname === path || pathname.startsWith(path + '/')
+        pathname === path
 
     const activeClasses =
         'bg-primary/10 text-primary font-bold'

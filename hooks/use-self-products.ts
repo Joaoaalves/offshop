@@ -4,20 +4,21 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 export function useSelfProducts() {
   const qc = useQueryClient();
 
-  const { mutate: createSelfProduct } = useMutation({
-    mutationFn: (data: any) =>
-      api("/api/internal-product", {
-        method: "POST",
-        body: JSON.stringify(data),
-      }),
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["self-products"] });
-    },
-  });
+  const { mutateAsync: createSelfProduct, isPending: createPending } =
+    useMutation({
+      mutationFn: (data: any) =>
+        api("/api/self-products", {
+          method: "POST",
+          body: JSON.stringify(data),
+        }),
+      onSuccess: () => {
+        qc.invalidateQueries({ queryKey: ["self-products"] });
+      },
+    });
 
-  const { mutate: deleteSelfProduct } = useMutation({
+  const { mutateAsync: deleteSelfProduct } = useMutation({
     mutationFn: (id: string) =>
-      api(`/api/internal-product/${id}`, { method: "DELETE" }),
+      api(`/api/self-products/${id}`, { method: "DELETE" }),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["self-products"] });
     },
@@ -25,12 +26,12 @@ export function useSelfProducts() {
 
   const { data: selfProducts, isLoading } = useQuery<any[]>({
     queryKey: ["self-products"],
-    queryFn: () => api("/api/internal-product"),
+    queryFn: () => api("/api/self-products"),
   });
 
-  const { mutate: updateSelfProduct } = useMutation({
+  const { mutateAsync: updateSelfProduct } = useMutation({
     mutationFn: ({ id, data }: any) =>
-      api(`/api/internal-product/${id}`, {
+      api(`/api/self-products/${id}`, {
         method: "PUT",
         body: JSON.stringify(data),
       }),
@@ -43,6 +44,7 @@ export function useSelfProducts() {
     selfProducts,
     isLoading,
     createSelfProduct,
+    createPending,
     deleteSelfProduct,
     updateSelfProduct,
   };

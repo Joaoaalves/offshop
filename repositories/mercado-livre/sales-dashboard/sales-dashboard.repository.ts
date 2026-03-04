@@ -16,6 +16,10 @@ export class MlSalesDashboardRepository {
     });
   }
 
+  async getAll() {
+    return await MlSalesDashboard.find().lean();
+  }
+
   async clear() {
     await MlSalesDashboard.deleteMany({});
   }

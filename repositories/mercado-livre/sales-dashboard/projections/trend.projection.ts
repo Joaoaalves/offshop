@@ -13,6 +13,7 @@ export const TrendProjection = {
         ],
       },
       conversionDropped: { $ifNull: ["$_trend.conversionDropped", false] },
+      conversionDropPct: { $ifNull: ["$_trend.conversionDropPct", 0] },
     };
   },
 };

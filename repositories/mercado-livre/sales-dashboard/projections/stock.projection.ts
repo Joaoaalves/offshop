@@ -9,11 +9,8 @@ export const StockProjection = {
             fulfillment: {
               stock: { $ifNull: ["$_stock.fulfillment.stock", 0] },
               replenishment: {
-                coverageDays: {
-                  $ifNull: [
-                    "$_stock.fulfillment.replenishment.coverageDays",
-                    0,
-                  ],
+                coverage: {
+                  $ifNull: ["$_stock.fulfillment.replenishment.coverage", 0],
                 },
                 days: {
                   $ifNull: ["$_stock.fulfillment.replenishment.days", 0],
@@ -31,8 +28,8 @@ export const StockProjection = {
             flex: {
               stock: { $ifNull: ["$_stock.flex.stock", 0] },
               replenishment: {
-                coverageDays: {
-                  $ifNull: ["$_stock.flex.replenishment.coverageDays", 0],
+                coverage: {
+                  $ifNull: ["$_stock.flex.replenishment.coverage", 0],
                 },
                 days: {
                   $ifNull: ["$_stock.flex.replenishment.days", 0],

@@ -1,0 +1,27 @@
+{"_id":{"$oid":"699743ab003a4f4454d9dc4d"},"name":"BURIGOTTO","leadTimeDays":5,"safetyDays":2,"active":true,"createdAt":{"$date":"2026-02-19T17:08:59.427Z"},"__v":0}
+{"_id":{"$oid":"699743b4003a4f4454d9dc4f"},"name":"BUBA","leadTimeDays":5,"safetyDays":2,"active":true,"createdAt":{"$date":"2026-02-19T17:09:08.763Z"},"__v":0}
+{"_id":{"$oid":"699743bf003a4f4454d9dc51"},"name":"MAXCRIL / WALEU","leadTimeDays":5,"safetyDays":2,"active":true,"createdAt":{"$date":"2026-02-19T17:09:19.743Z"},"__v":0}
+{"_id":{"$oid":"699743c6003a4f4454d9dc53"},"name":"CAMPINEIRA","leadTimeDays":5,"safetyDays":2,"active":true,"createdAt":{"$date":"2026-02-19T17:09:26.228Z"},"__v":0}
+{"_id":{"$oid":"699743cf003a4f4454d9dc55"},"name":"RONI GRILL","leadTimeDays":5,"safetyDays":2,"active":true,"createdAt":{"$date":"2026-02-19T17:09:35.123Z"},"__v":0}
+{"_id":{"$oid":"699743d7003a4f4454d9dc57"},"name":"GALAXY LED","leadTimeDays":5,"safetyDays":2,"active":true,"createdAt":{"$date":"2026-02-19T17:09:43.513Z"},"__v":0}
+{"_id":{"$oid":"699743de003a4f4454d9dc59"},"name":"SOUZA","leadTimeDays":5,"safetyDays":2,"active":true,"createdAt":{"$date":"2026-02-19T17:09:50.464Z"},"__v":0}
+{"_id":{"$oid":"699743e2003a4f4454d9dc5b"},"name":"DELO","leadTimeDays":5,"safetyDays":2,"active":true,"createdAt":{"$date":"2026-02-19T17:09:54.597Z"},"__v":0}
+{"_id":{"$oid":"699743e9003a4f4454d9dc5d"},"name":"MASTERPRINT","leadTimeDays":5,"safetyDays":2,"active":true,"createdAt":{"$date":"2026-02-19T17:10:01.061Z"},"__v":0}
+{"_id":{"$oid":"69974423003a4f4454d9dc5f"},"name":"M.N PLAST","leadTimeDays":5,"safetyDays":2,"active":true,"createdAt":{"$date":"2026-02-19T17:10:59.045Z"},"__v":0}
+{"_id":{"$oid":"69974429003a4f4454d9dc61"},"name":"EMBALAWEB","leadTimeDays":5,"safetyDays":2,"active":true,"createdAt":{"$date":"2026-02-19T17:11:05.635Z"},"__v":0}
+{"_id":{"$oid":"6997442f003a4f4454d9dc63"},"name":"PREMISSE","leadTimeDays":5,"safetyDays":2,"active":true,"createdAt":{"$date":"2026-02-19T17:11:11.202Z"},"__v":0}
+{"_id":{"$oid":"69974435003a4f4454d9dc65"},"name":"ZIP","leadTimeDays":5,"safetyDays":2,"active":true,"createdAt":{"$date":"2026-02-19T17:11:17.06Z"},"__v":0}
+{"_id":{"$oid":"6997443a003a4f4454d9dc67"},"name":"POLIBRAS","leadTimeDays":5,"safetyDays":2,"active":true,"createdAt":{"$date":"2026-02-19T17:11:22.174Z"},"__v":0}
+{"_id":{"$oid":"6997443f003a4f4454d9dc69"},"name":"OUROLUX","leadTimeDays":5,"safetyDays":2,"active":true,"createdAt":{"$date":"2026-02-19T17:11:27.44Z"},"__v":0}
+{"_id":{"$oid":"69974445003a4f4454d9dc6b"},"name":"NITRON","leadTimeDays":5,"safetyDays":2,"active":true,"createdAt":{"$date":"2026-02-19T17:11:33.689Z"},"__v":0}
+{"_id":{"$oid":"69974448003a4f4454d9dc6d"},"name":"GAIL","leadTimeDays":5,"safetyDays":2,"active":true,"createdAt":{"$date":"2026-02-19T17:11:36.95Z"},"__v":0}
+{"_id":{"$oid":"6997444f003a4f4454d9dc6f"},"name":"VIEL","leadTimeDays":5,"safetyDays":2,"active":true,"createdAt":{"$date":"2026-02-19T17:11:43.003Z"},"__v":0}
+{"_id":{"$oid":"69974455003a4f4454d9dc71"},"name":"PAIS & FILHOS","leadTimeDays":5,"safetyDays":2,"active":true,"createdAt":{"$date":"2026-02-19T17:11:49.148Z"},"__v":0}
+{"_id":{"$oid":"6997445b003a4f4454d9dc73"},"name":"CORTIARTE","leadTimeDays":5,"safetyDays":2,"active":true,"createdAt":{"$date":"2026-02-19T17:11:55.214Z"},"__v":0}
+{"_id":{"$oid":"69974460003a4f4454d9dc75"},"name":"RT AT MANU","leadTimeDays":5,"safetyDays":2,"active":true,"createdAt":{"$date":"2026-02-19T17:12:00.885Z"},"__v":0}
+{"_id":{"$oid":"69974466003a4f4454d9dc77"},"name":"EVAMAX","leadTimeDays":5,"safetyDays":2,"active":true,"createdAt":{"$date":"2026-02-19T17:12:06.194Z"},"__v":0}
+{"_id":{"$oid":"699749df003a4f4454d9dc79"},"name":"CASA FÁCIL","leadTimeDays":5,"safetyDays":2,"active":true,"createdAt":{"$date":"2026-02-19T17:35:27.399Z"},"__v":0}
+{"_id":{"$oid":"69977358003a4f4454d9e48e"},"name":"STOLF","leadTimeDays":5,"safetyDays":2,"active":true,"createdAt":{"$date":"2026-02-19T20:32:24.616Z"},"__v":0}
+{"_id":{"$oid":"69977391003a4f4454d9e491"},"name":"UNINJET","leadTimeDays":5,"safetyDays":2,"active":true,"createdAt":{"$date":"2026-02-19T20:33:21.743Z"},"__v":0}
+{"_id":{"$oid":"699773e2003a4f4454d9e496"},"name":"JAVICK","leadTimeDays":5,"safetyDays":2,"active":true,"createdAt":{"$date":"2026-02-19T20:34:42.549Z"},"__v":0}
+{"_id":{"$oid":"69977413003a4f4454d9e498"},"name":"MAXEB","leadTimeDays":5,"safetyDays":2,"active":true,"createdAt":{"$date":"2026-02-19T20:35:31.839Z"},"__v":0}

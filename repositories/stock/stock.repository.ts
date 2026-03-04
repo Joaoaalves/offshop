@@ -28,12 +28,12 @@ export class StockRepository {
     return Stock.find({
       $or: [
         {
-          "fulfillment.replenishment.coverageDays": { $lte: 45 },
+          "fulfillment.replenishment.coverage": { $lte: 45 },
           avgDailySales: { $gt: 0.05 },
         },
       ],
     })
-      .sort({ "fulfillment.replenishment.coverageDays": 1 })
+      .sort({ "fulfillment.replenishment.coverage": 1 })
       .lean();
   }
 

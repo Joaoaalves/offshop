@@ -22,7 +22,7 @@ export const StockModalityMetricsSchema = new Schema<IStockModalityMetrics>(
     stock: { type: Number, default: 0 },
     replenishment: new Schema(
       {
-        coverageDays: { type: Number, default: 0 },
+        coverage: { type: Number, default: 0 },
         days: { type: Number, default: 0 },
         suggestedUnits: { type: Number, default: 0 },
       },
