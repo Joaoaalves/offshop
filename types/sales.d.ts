@@ -17,7 +17,6 @@ export interface IMonthBucket {
 
   conversionRate: number;
 
-  total: IModalityMetrics;
   fulfillment: IModalityMetrics;
   flex: IModalityMetrics;
   dropOff: IModalityMetrics;
@@ -42,6 +41,7 @@ export interface ISalesBucket {
 }
 
 export type ISalesDashboardItem<TProduct extends IProductBaseCache> = TProduct &
-  IProductTrendCache & {
+  IProductTrendCache &
+  IProductAbc & {
     stock: IStock;
   };

@@ -1,4 +1,4 @@
-import { IExternalProduct } from "./product";
+import { IExternalProduct, IProductBaseCache } from "./product";
 
 export type MlLogisticType =
   | "fulfillment"
@@ -15,3 +15,5 @@ export interface IMlProduct extends IExternalProduct<
   catalogListing: boolean; // If true, is a catalog item
   itemRelation?: string; // Another productId
 }
+
+export type IMlProductBase = IProductBaseCache<IMlProduct>;
