@@ -1,9 +1,9 @@
-import { ProductBaseCache } from "@/models/mercado-livre/cache/MlProductBaseCache";
+import { MlProductBaseCache } from "@/models/mercado-livre/cache/MlProductBaseCache";
 import { ProductAbcCache } from "@/models/mercado-livre/cache/MlProductAbc";
 import { ProductAbcPipelineBuilder } from "./product-abc.pipeline.builder";
 import { AbcCurveChange } from "@/types/enums";
 
-export class ProductAbcCacheRepository {
+export class MlProductAbcCacheRepository {
   async rebuild() {
     const pipeline = new ProductAbcPipelineBuilder()
       .base()
@@ -12,7 +12,7 @@ export class ProductAbcCacheRepository {
       .persist()
       .build();
 
-    await ProductBaseCache.aggregate(pipeline, { allowDiskUse: true });
+    await MlProductBaseCache.aggregate(pipeline, { allowDiskUse: true });
   }
 
   async getChanged() {

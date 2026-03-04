@@ -1,6 +1,6 @@
 import { IMlProductBase } from "@/types/mercado-livre";
 import { IMonthBucket } from "@/types/sales";
-import mongoose, { Schema } from "mongoose";
+import mongoose, { model, models, Schema } from "mongoose";
 
 const MonthBucketSchema = new Schema<IMonthBucket>(
   {
@@ -62,7 +62,6 @@ const MlProductBaseCacheSchema = new Schema<IMlProductBase>(
   { timestamps: true, collection: "productbasecaches" },
 );
 
-export const ProductBaseCache = mongoose.model<IMlProductBase>(
-  "ProductBaseCache",
-  MlProductBaseCacheSchema,
-);
+export const MlProductBaseCache =
+  models.MlProductBaseCache ||
+  model("ProductBaseCache", MlProductBaseCacheSchema);

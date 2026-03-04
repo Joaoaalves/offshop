@@ -42,8 +42,8 @@ export const ConsolidateStages = {
           stock: "$fullStock",
           replenishment: {
             coverageDays: "$fullCoverageDays",
-            replenishmentDays: "$fullReplenishmentDays",
-            suggestedReplenishmentUnits: "$fullSuggestedReplenishmentUnits",
+            days: "$fullReplenishmentDays",
+            suggestedUnits: "$fullsuggestedUnits",
           },
         },
 
@@ -51,8 +51,8 @@ export const ConsolidateStages = {
           stock: "$flexStock",
           replenishment: {
             coverageDays: "$flexCoverageDays",
-            replenishmentDays: "$flexReplenishmentDays",
-            suggestedReplenishmentUnits: "$flexSuggestedReplenishmentUnits",
+            days: "$flexReplenishmentDays",
+            suggestedUnits: "$flexsuggestedUnits",
           },
         },
 

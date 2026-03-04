@@ -12,7 +12,6 @@ export const TrendProjection = {
           { slope: 0, intercept: 0, r2: 0, slopePct: 0, avgRevenue: 0 },
         ],
       },
-      stockoutSuspected: { $ifNull: ["$_trend.stockoutSuspected", false] },
       conversionDropped: { $ifNull: ["$_trend.conversionDropped", false] },
     };
   },

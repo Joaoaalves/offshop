@@ -1,8 +1,8 @@
 import { AbcCurve, Momentum, Trend } from "@/types/enums";
 import { IMlProductBase } from "@/types/mercado-livre";
 import { ISalesDashboardItem } from "@/types/sales";
-import mongoose, { Schema } from "mongoose";
-import { Stock } from "../Stock";
+import mongoose, { model, models, Schema } from "mongoose";
+import { EmbeddedStockSchema } from "../Stock";
 
 const numberEnumValues = (e: object) =>
   Object.values(e).filter((v) => typeof v === "number");
@@ -63,13 +63,12 @@ const MlSalesDashboardSchema = new Schema<ISalesDashboardItem<IMlProductBase>>(
     abcCumulativePct: { type: Number, default: 0 },
 
     stock: {
-      type: Stock,
+      type: EmbeddedStockSchema,
       default: null,
     },
   },
   { timestamps: true, collection: "salesdashboard" },
 );
 
-export const MlSalesDashboard = mongoose.model<
-  ISalesDashboardItem<IMlProductBase>
->("SalesDashboard", MlSalesDashboardSchema);
+export const MlSalesDashboard =
+  models.MlSalesDashboard || model("SalesDashboard", MlSalesDashboardSchema);

@@ -47,7 +47,7 @@ export const StockStages = {
             },
           ],
         },
-        fullSuggestedReplenishmentUnits: {
+        fullsuggestedUnits: {
           $ceil: {
             $multiply: [
               {
@@ -65,7 +65,7 @@ export const StockStages = {
             ],
           },
         },
-        flexSuggestedReplenishmentUnits: {
+        flexsuggestedUnits: {
           $ceil: {
             $multiply: [
               {

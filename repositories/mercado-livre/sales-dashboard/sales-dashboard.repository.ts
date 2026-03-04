@@ -1,8 +1,8 @@
-import { ProductBaseCache } from "@/models/mercado-livre/cache/MlProductBaseCache";
+import { MlProductBaseCache } from "@/models/mercado-livre/cache/MlProductBaseCache";
 import { SalesDashboardPipelineBuilder } from "./sales-dashboard.pipeline.builder";
 import { MlSalesDashboard } from "@/models/mercado-livre/MlSalesDashboard";
 
-export class SalesDashboardRepository {
+export class MlSalesDashboardRepository {
   async rebuild() {
     const pipeline = new SalesDashboardPipelineBuilder()
       .joins()
@@ -11,7 +11,7 @@ export class SalesDashboardRepository {
       .persist()
       .build();
 
-    return ProductBaseCache.aggregate(pipeline, {
+    return MlProductBaseCache.aggregate(pipeline, {
       allowDiskUse: true,
     });
   }

@@ -17,6 +17,8 @@ export interface IMonthBucket {
 
   conversionRate: number;
 
+  total: IModalityMetrics;
+
   fulfillment: IModalityMetrics;
   flex: IModalityMetrics;
   dropOff: IModalityMetrics;

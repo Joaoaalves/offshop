@@ -19,10 +19,6 @@ export const ConsolidateStages = {
           slopePct: "$_reg_slope_pct",
           avgRevenue: "$_reg_avg_y",
         },
-        stockoutSuspected: 1,
-        priceDumpSuspected: 1,
-        spikeDetected: 1,
-        dropDetected: 1,
         conversionDropped: 1,
         conversionDropPct: 1,
 
@@ -37,9 +33,6 @@ export const ConsolidateStages = {
             slopePct: "$_full_reg_slope_pct",
             avgRevenue: "$_full_reg_avg_y",
           },
-          stockoutSuspected: "$_full_stockoutSuspected",
-          spikeDetected: "$_full_spikeDetected",
-          dropDetected: "$_full_dropDetected",
         },
 
         flex: {
@@ -53,9 +46,6 @@ export const ConsolidateStages = {
             slopePct: "$_flex_reg_slope_pct",
             avgRevenue: "$_flex_reg_avg_y",
           },
-          stockoutSuspected: "$_flex_stockoutSuspected",
-          spikeDetected: "$_flex_spikeDetected",
-          dropDetected: "$_flex_dropDetected",
         },
       },
     };

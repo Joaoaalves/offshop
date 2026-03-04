@@ -1,7 +1,8 @@
 import { MlProduct } from "@/models/mercado-livre/MlProduct";
 import { ProductBasePipelineBuilder } from "./product-base.pipeline.builder";
+import { MlProductBaseCache } from "@/models/mercado-livre/cache/MlProductBaseCache";
 
-export class ProductBaseCacheRepository {
+export class MlProductBaseCacheRepository {
   private buildTimeWindow() {
     const now = new Date();
     const startMonth = new Date(
@@ -26,5 +27,9 @@ export class ProductBaseCacheRepository {
       .build();
 
     return MlProduct.aggregate(pipeline, { allowDiskUse: true });
+  }
+
+  async clear() {
+    await MlProductBaseCache.deleteMany({});
   }
 }

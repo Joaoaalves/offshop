@@ -1,7 +1,8 @@
-import { ProductBaseCache } from "@/models/mercado-livre/cache/MlProductBaseCache";
+import { MlProductBaseCache } from "@/models/mercado-livre/cache/MlProductBaseCache";
 import { ProductTrendPipelineBuilder } from "./product-trend.pipeline.builder";
+import { MlProductTrend } from "@/models/mercado-livre/cache/MlProductTrend";
 
-export class ProductTrendRepository {
+export class MlProductTrendRepository {
   async rebuild() {
     const pipeline = new ProductTrendPipelineBuilder()
       .extractSeries()
@@ -14,8 +15,12 @@ export class ProductTrendRepository {
       .persist()
       .build();
 
-    return ProductBaseCache.aggregate(pipeline, {
+    return MlProductBaseCache.aggregate(pipeline, {
       allowDiskUse: true,
     });
+  }
+
+  async clear() {
+    await MlProductTrend.deleteMany({});
   }
 }
