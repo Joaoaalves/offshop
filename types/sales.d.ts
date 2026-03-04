@@ -22,7 +22,7 @@ export interface IMonthBucket {
   dropOff: IModalityMetrics;
 }
 
-export interface ISalesBucket {
+export interface ISaleBucket {
   date: Date;
   product: string;
   sku: string;

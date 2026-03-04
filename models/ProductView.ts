@@ -14,5 +14,5 @@ ProductViewSchema.index({
 
 ProductViewSchema.index({ productId: 1, date: 1 }, { unique: true });
 
-export const MlProductView =
+export const ProductView =
   models.MlProductView || model("mlViews", ProductViewSchema);
