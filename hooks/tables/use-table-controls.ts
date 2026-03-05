@@ -1,121 +1,43 @@
 "use client";
 
-import { SalesRow } from "@/types/sales";
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useCallback, useMemo, useEffect } from "react";
 import { useShrinkableColumns } from "./use-shrinkable-columns";
-
-// ─── Types ────────────────────────────────────────────────────────────────────
-
-export type SortField =
-  | "productId"
-  | "sku"
-  | "abcCurve"
-  | "status"
-  | "dailyAvgRevenue"
-  | "dailyAvgUnits"
-  | "totalRevenue"
-  | "totalUnits"
-  | "conversion"
-  | "availableQuantity";
 
 export type SortDir = "asc" | "desc";
 
-export interface SortState {
-  field: SortField | null;
+export interface SortState<TField extends string = string> {
+  field: TField | null;
   dir: SortDir;
 }
 
-/** One entry per toggleable column group */
 export interface ColumnDef {
-  key: string; // unique key
-  label: string; // shown in the UI
-  group: string; // group label for visual grouping in the toolbar
+  key: string;
+  label: string;
+  group: string;
   defaultVisible: boolean;
 }
 
-// ─── Column definitions ───────────────────────────────────────────────────────
-
-export const COLUMN_DEFS: ColumnDef[] = [
-  { key: "col-mlb", label: "MLB", group: "Produto", defaultVisible: true },
-  { key: "col-sku", label: "SKU", group: "Produto", defaultVisible: true },
-  {
-    key: "col-abc",
-    label: "Curva ABC",
-    group: "Produto",
-    defaultVisible: true,
-  },
-  {
-    key: "col-status",
-    label: "Status",
-    group: "Produto",
-    defaultVisible: true,
-  },
-  {
-    key: "col-avg-rev",
-    label: "Média R$",
-    group: "Média Diária",
-    defaultVisible: true,
-  },
-  {
-    key: "col-avg-un",
-    label: "Média Un",
-    group: "Média Diária",
-    defaultVisible: true,
-  },
-  {
-    key: "col-total-rev",
-    label: "Total Receita",
-    group: "Total (120d)",
-    defaultVisible: true,
-  },
-  {
-    key: "col-total-un",
-    label: "Total Unidades",
-    group: "Total (120d)",
-    defaultVisible: true,
-  },
-  {
-    key: "col-stock-full",
-    label: "Estoque Full",
-    group: "Estoque",
-    defaultVisible: true,
-  },
-  {
-    key: "col-stock-flex",
-    label: "Estoque Flex",
-    group: "Estoque",
-    defaultVisible: true,
-  },
-  {
-    key: "col-conversion",
-    label: "Conversão",
-    group: "Conversão",
-    defaultVisible: true,
-  },
-];
-
-// ─── Visibility ───────────────────────────────────────────────────────────────
-
-function useColumnVisibility(storageKey: string) {
+function useColumnVisibility(storageKey: string, columnDefs: ColumnDef[]) {
   const defaults = useMemo(
     () =>
       Object.fromEntries(
-        COLUMN_DEFS.map((c) => [c.key, c.defaultVisible]),
+        columnDefs.map((c) => [c.key, c.defaultVisible]),
       ) as Record<string, boolean>,
-    [],
+    [columnDefs],
   );
 
-  const [visibility, setVisibility] =
-    useState<Record<string, boolean>>(defaults);
+  const [visibility, setVisibility] = useState<Record<string, boolean>>(defaults);
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     try {
       const stored = localStorage.getItem(storageKey);
-      if (stored) setVisibility({ ...defaults, ...JSON.parse(stored) });
+      if (stored) {
+        setVisibility((prev) => ({ ...prev, ...JSON.parse(stored) }));
+      }
     } catch {}
     setMounted(true);
-  }, [storageKey, defaults]);
+  }, [storageKey]);
 
   useEffect(() => {
     if (!mounted) return;
@@ -141,76 +63,27 @@ function useColumnVisibility(storageKey: string) {
   return { visibility, toggleColumn, isVisible, resetVisibility };
 }
 
-// ─── Sorting ──────────────────────────────────────────────────────────────────
-
-function sortRows(rows: SalesRow[], sort: SortState): SalesRow[] {
-  if (!sort.field) return rows;
-  const { field, dir } = sort;
-  const mul = dir === "asc" ? 1 : -1;
-
-  return [...rows].sort((a, b) => {
-    let av: number | string = 0;
-    let bv: number | string = 0;
-
-    switch (field) {
-      case "productId":
-        av = a.productId;
-        bv = b.productId;
-        break;
-      case "sku":
-        av = a.sku;
-        bv = b.sku;
-        break;
-      case "abcCurve":
-        av = a.abcCurve ?? "";
-        bv = b.abcCurve ?? "";
-        break;
-      case "status":
-        av = a.status ?? "";
-        bv = b.status ?? "";
-        break;
-      case "dailyAvgRevenue":
-        av = a.dailyAvg45.revenue;
-        bv = b.dailyAvg45.revenue;
-        break;
-      case "dailyAvgUnits":
-        av = a.dailyAvg45.units;
-        bv = b.dailyAvg45.units;
-        break;
-      case "totalRevenue":
-        av = a.totals.revenue;
-        bv = b.totals.revenue;
-        break;
-      case "totalUnits":
-        av = a.totals.units;
-        bv = b.totals.units;
-        break;
-      case "conversion":
-        av = a.currentMonth?.conversionRate ?? 0;
-        bv = b.currentMonth?.conversionRate ?? 0;
-        break;
-      case "availableQuantity":
-        av = a.availableQuantity ?? 0;
-        bv = b.availableQuantity ?? 0;
-        break;
-    }
-
-    if (typeof av === "string" && typeof bv === "string") {
-      return av.localeCompare(bv) * mul;
-    }
-    return ((av as number) - (bv as number)) * mul;
-  });
+export interface UseTableControlsProps<T, TField extends string = string> {
+  data: T[];
+  columnDefs: ColumnDef[];
+  storageKeyPrefix: string;
+  sortFn?: (data: T[], sort: SortState<TField>) => T[];
+  initialSort?: SortState<TField>;
 }
 
-// ─── Main hook ────────────────────────────────────────────────────────────────
+export function useTableControls<T, TField extends string = string>({
+  data,
+  columnDefs,
+  storageKeyPrefix,
+  sortFn,
+  initialSort = { field: null, dir: "desc" } as SortState<TField>,
+}: UseTableControlsProps<T, TField>) {
+  const [sort, setSort] = useState<SortState<TField>>(initialSort);
 
-export function useTableControls(rows: SalesRow[]) {
-  const [sort, setSort] = useState<SortState>({ field: null, dir: "desc" });
+  const shrink = useShrinkableColumns(`${storageKeyPrefix}-shrink`);
+  const colVis = useColumnVisibility(`${storageKeyPrefix}-col-vis`, columnDefs);
 
-  const shrink = useShrinkableColumns("sales-shrink-v1");
-  const colVis = useColumnVisibility("sales-col-visibility-v1");
-
-  const toggleSort = useCallback((field: SortField) => {
+  const toggleSort = useCallback((field: TField) => {
     setSort((prev) => {
       if (prev.field === field) {
         return { field, dir: prev.dir === "asc" ? "desc" : "asc" };
@@ -220,22 +93,21 @@ export function useTableControls(rows: SalesRow[]) {
   }, []);
 
   const clearSort = useCallback(
-    () => setSort({ field: null, dir: "desc" }),
-    [],
+    () => setSort(initialSort),
+    [initialSort.field, initialSort.dir],
   );
 
-  const sortedRows = useMemo(() => sortRows(rows, sort), [rows, sort]);
+  const sortedRows = useMemo(() => {
+    if (!sortFn) return data;
+    return sortFn(data, sort);
+  }, [data, sort, sortFn]);
 
   return {
-    // data
     sortedRows,
-    // sort
     sort,
     toggleSort,
     clearSort,
-    // shrink
     shrink,
-    // column visibility
     colVis,
   };
 }

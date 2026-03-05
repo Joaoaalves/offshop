@@ -2,7 +2,7 @@ import { existed } from "@/lib/sales-utils";
 import { Fragment } from "react/jsx-runtime";
 import { TableCell } from "@/components/ui/table";
 import { Minus, TrendingDown, TrendingUp } from "lucide-react";
-import { SalesRow } from "@/types/sales";
+import { IMonthBucket } from "@/types/sales";
 
 
 /**
@@ -20,38 +20,40 @@ export const MONTH_COLS_EXPANDED = 4;  // R$ + Full + Flex + DropOff
 export const MONTH_COLS_SHRUNKEN = 2;  // R$ + Total Un
 
 export function MonthCells({
-    row,
+    resolvedMonths,
+    dateCreated,
     isVisible,
     isShrunken,
 }: {
-    row: SalesRow;
+    resolvedMonths: IMonthBucket[];
+    dateCreated: Date;
     isVisible: (key: string) => boolean;
     isShrunken: boolean;
 }) {
     return (
         <>
-            {row.resolvedMonths.map((m, i) => {
+            {resolvedMonths.map((m, i) => {
                 const key = `month-${m.year}-${m.month}`;
                 if (!isVisible(key)) return null;
 
                 const monthInit = new Date(m.year, m.month - 1, 1);
-                const cDate = new Date(row.dateCreated);
+                const cDate = new Date(dateCreated);
                 const exists = existed(monthInit, cDate);
 
                 const revCell = (
-                    <TableCell className="text-left tabular-nums text-xs py-3 pr-2 pl-3 border-l border-border">
+                    <TableCell className="text-start tabular-nums text-[10px] py-3 border-l border-border">
                         {exists ? (
                             <div className="w-full flex items-center justify-between gap-x-1.5">
                                 <span className="text-foreground/70">
-                                    R$ {m.total.revenue.toFixed(2)}
+                                    R$ {m.total?.revenue.toFixed(2)}
                                 </span>
-                                {i > 0 && m.total.revenue > row.resolvedMonths[i - 1].total.revenue && (
+                                {i > 0 && m.total?.revenue > resolvedMonths[i - 1].total?.revenue && (
                                     <TrendingUp className="min-w-3 max-w-3 text-emerald-500" />
                                 )}
-                                {i > 0 && m.total.revenue === row.resolvedMonths[i - 1].total.revenue && (
+                                {i > 0 && m.total?.revenue === resolvedMonths[i - 1].total?.revenue && (
                                     <Minus className="min-w-3 max-w-3 text-neutral-400" />
                                 )}
-                                {i > 0 && m.total.revenue < row.resolvedMonths[i - 1].total.revenue && (
+                                {i > 0 && m.total?.revenue < resolvedMonths[i - 1].total?.revenue && (
                                     <TrendingDown className="min-w-3 max-w-3 text-red-500" />
                                 )}
                             </div>
@@ -66,7 +68,7 @@ export function MonthCells({
                     return (
                         <Fragment key={key}>
                             {revCell}
-                            <TableCell className="text-center tabular-nums text-xs py-3 border-r-2 border-border">
+                            <TableCell className="text-center tabular-nums text-[10px] py-3 border-r-2 border-border">
                                 {exists
                                     ? <span className="text-foreground/70">{m.total.items}</span>
                                     : <Minus className="w-3.5 h-3.5 text-muted-foreground/30 mx-auto" />
@@ -80,19 +82,19 @@ export function MonthCells({
                 return (
                     <Fragment key={key}>
                         {revCell}
-                        <TableCell className="text-center tabular-nums text-xs py-3 border-border">
+                        <TableCell className="text-center tabular-nums text-[10px] py-3 border-border">
                             {exists
                                 ? <span className="text-foreground/70">{m?.fulfillment?.items ?? 0}</span>
                                 : <Minus className="w-3.5 h-3.5 text-muted-foreground/30 mx-auto" />
                             }
                         </TableCell>
-                        <TableCell className="text-center tabular-nums text-xs py-3 border-border">
+                        <TableCell className="text-center tabular-nums text-[10px] py-3 border-border">
                             {exists
                                 ? <span className="text-foreground/70">{m?.flex?.items ?? 0}</span>
                                 : <Minus className="w-3.5 h-3.5 text-muted-foreground/30 mx-auto" />
                             }
                         </TableCell>
-                        <TableCell className="text-center tabular-nums text-xs py-3 border-r-2 border-border">
+                        <TableCell className="text-center tabular-nums text-[10px] py-3 border-r-2 border-border">
                             {exists
                                 ? <span className="text-foreground/70">{m?.dropOff?.items ?? 0}</span>
                                 : <Minus className="w-3.5 h-3.5 text-muted-foreground/30 mx-auto" />

@@ -3,9 +3,8 @@
 import { useState, useRef, useEffect } from "react";
 import {
     SortState,
-    SortField,
-    COLUMN_DEFS,
 } from "@/hooks/tables/use-table-controls";
+import { SortField, COLUMN_DEFS } from "./sales-table-config";
 import { cn } from "@/lib/utils";
 import {
     Columns3,
@@ -26,7 +25,7 @@ import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMe
 
 
 interface TableToolbarProps {
-    sort: SortState;
+    sort: SortState<SortField>;
     clearSort: () => void;
     shrunken: Set<string>;
     toggleShrink: (key: string) => void;
@@ -150,7 +149,6 @@ export function TableToolbar({
 
 function sortFieldLabel(field: SortField): string {
     const map: Record<SortField, string> = {
-        productId: "MLB",
         sku: "SKU",
         abcCurve: "Curva",
         status: "Status",

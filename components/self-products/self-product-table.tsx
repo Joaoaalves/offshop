@@ -45,7 +45,7 @@ export function SelfProductsTable() {
                                     variant="outline"
                                     className="font-semibold tabular-nums"
                                 >
-                                    {product?.supplierId?.name}
+                                    {product?.supplier?.name}
 
                                 </Badge>
                             </TableCell>

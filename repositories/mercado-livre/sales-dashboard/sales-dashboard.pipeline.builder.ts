@@ -4,16 +4,36 @@ import { AbcJoin } from "./joins/abc.join";
 import { StockJoin } from "./joins/stock.joinl";
 import { FinalProjection } from "./projections/final.projection";
 import { MergeStage } from "./stages/merge.stage";
+import { GroupBySkuStages } from "./stages/group-by-sku.stages";
 
 export class SalesDashboardPipelineBuilder {
   private stages: PipelineStage[] = [];
+
+  filter() {
+    this.stages.push({
+      $match: {
+        sku: { $exists: true, $ne: null },
+        productId: { $exists: true, $ne: null },
+      },
+    });
+    return this;
+  }
 
   joins() {
     this.stages.push(
       ...TrendJoin.lookup(),
       ...AbcJoin.lookup(),
-      ...StockJoin.lookup(),
     );
+    return this;
+  }
+
+  groupBySku() {
+    this.stages.push(...GroupBySkuStages.build());
+    return this;
+  }
+
+  stockJoin() {
+    this.stages.push(...StockJoin.lookup());
     return this;
   }
 

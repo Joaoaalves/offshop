@@ -5,9 +5,17 @@ import { cn } from "@/lib/utils"
 import { ArrowDown, ArrowUp } from "lucide-react"
 import { formatMonthYear } from "@/lib/date-utils"
 import { Badge } from "@/components/ui/badge"
-import { SalesRow } from "@/types/sales"
+import { IMonthBucket } from "@/types/sales"
 
-export function ConversionCell({ row }: { row: SalesRow }) {
+interface ConversionData {
+    id: string;
+    currentMonth: IMonthBucket | null;
+    conversionDropped: boolean;
+    conversionDropPct: number;
+    months: IMonthBucket[];
+}
+
+export function ConversionCell({ row }: { row: ConversionData }) {
     const conversion = calcConversion(row.currentMonth)
 
     return (
@@ -17,16 +25,16 @@ export function ConversionCell({ row }: { row: SalesRow }) {
                     <div className="flex flex-col items-center gap-1 cursor-default">
                         <span
                             className={cn(
-                                "text-xs font-semibold tabular-nums flex items-center gap-0.5",
+                                "text-[10px] font-semibold tabular-nums flex items-center gap-0.5",
                                 conversion >= 2 && "text-amber-600",
                                 conversion >= 5 && "text-emerald-600",
                                 conversion < 2 && "text-red-500"
                             )}
                         >
                             {row.conversionDropped ? (
-                                <ArrowDown className="w-3.5 h-3.5 text-red-500" />
+                                <ArrowDown className="w-3 h-3 text-red-500" />
                             ) : row.currentMonth?.conversionRate && row.conversionDropPct < -15 ? (
-                                <ArrowUp className="w-3.5 h-3.5 text-green-500" />
+                                <ArrowUp className="w-3 h-3 text-green-500" />
                             ) : null}
                             {conversion.toFixed(2)}%
                         </span>
@@ -50,7 +58,7 @@ export function ConversionCell({ row }: { row: SalesRow }) {
                     <ol className="mt-1">
                         {row.months.map((m) => (
                             <li
-                                key={`conv-${row.productId}-${m.month}-${m.year}`}
+                                key={`conv-${row.id}-${m.month}-${m.year}`}
                                 className="grid grid-cols-2 gap-4"
                             >
                                 <span>{formatMonthYear(m.month, m.year)}</span>
@@ -58,7 +66,7 @@ export function ConversionCell({ row }: { row: SalesRow }) {
                             </li>
                         ))}
                     </ol>
-                    <Badge variant="secondary" className="mt-2">
+                    <Badge variant="secondary" className={cn("mt-2", row.conversionDropped && "bg-destructive")}>
                         {row.conversionDropped
                             ? `Caiu: ${row.conversionDropPct.toFixed(1)}%`
                             : row.conversionDropPct < -15 && (row.currentMonth?.conversionRate ?? 0) > 0 ? `Subiu: ${(row.conversionDropPct * -1).toFixed(1)}%` : "Manteve"}

@@ -1,9 +1,9 @@
-import { Supplier } from "./supplier";
+import { ISupplier } from "./supplier";
 
 export interface ISelfProduct {
   name: string;
   baseSku: string;
-  supplier: Supplier;
+  supplier: ISupplier;
 
   minStockDays: number;
 

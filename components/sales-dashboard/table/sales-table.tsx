@@ -1,57 +1,125 @@
 "use client";
 
-import { useRef, useMemo, useCallback } from "react";
+import { useRef, useMemo, useCallback, useState } from "react";
 import { useVirtualizer } from "@tanstack/react-virtual";
 import SalesTableHeader from "./sales-table-header";
 import { useSalesDashboard } from "@/hooks/dashboard/use-sales-dashboard";
 import { buildRows, getOrderedMonths } from "@/lib/sales-utils";
 import { Table, TableBody } from "@/components/ui/table";
 import { TableToolbar } from "./table-toolbar";
-import { SalesRow } from "@/types/sales";
+import { IMlSalesDashboardProduct, SalesRow } from "@/types/sales";
 import { useTableControls } from "@/hooks/tables/use-table-controls";
+import { useSmartFilters } from "@/hooks/tables/use-smart-filters";
+import { useFilters } from "@/hooks/tables/use-filters";
+import { smartFilters } from "../filters/smart/filters";
+import { filters as simpleFilters } from "../filters/simple/filters";
+import { COLUMN_DEFS, sortSalesRows, SortField } from "./sales-table-config";
 import { SalesTableRow } from "./sales-table-row";
+import { SalesProductRow } from "./sales-product-row";
+import { SalesDashboardFilters } from "../filters/sales-dashboard-filter";
 
+
+// ─── FlatRow: discriminated union for virtualizer ─────────────────────────────
+type FlatRow =
+    | { kind: "sku"; row: SalesRow }
+    | { kind: "product"; product: IMlSalesDashboardProduct; parentRow: SalesRow };
 
 // ─── Column width catalogue (px) ─────────────────────────────────────────────
 const COL_W: Record<string, number> = {
-    "col-mlb": 160,
-    "col-sku": 300,
-    "col-abc": 70,
-    "col-status": 100,
-    "col-avg-rev": 110,
-    "col-avg-un": 70,
+    "col-sku": 220,
+    "col-abc": 60,
+    "col-status": 70,
+    "col-avg-rev": 80,
+    "col-avg-un": 50,
     "col-total-rev": 90,
-    "col-total-un": 80,
-    "col-stock-full": 60,
-    "col-stock-flex": 60,
-    "col-conversion": 120,
+    "col-total-un": 50,
+    "col-stock-full": 50,
+    "col-stock-flex": 50,
+    "col-conversion": 100,
 };
 
 // Widths for each month column in each mode
 //   EXPANDED  → R$(110) | Full(64) | Flex(64) | Drop(64)  = 4 cols
-//   SHRUNKEN  → R$(110) | Un(64)                           = 2 cols
-const MONTH_W_EXPANDED = [90, 64, 64, 64];
-const MONTH_W_SHRUNKEN = [90, 64];
+//   SHRUNKEN  → R$(110) | Un(64)                          = 2 cols
+const MONTH_W_EXPANDED = [80, 50, 50, 50];
+const MONTH_W_SHRUNKEN = [80, 40];
 
 export default function SalesTable() {
     const { items } = useSalesDashboard();
     const parentRef = useRef<HTMLDivElement>(null);
+    const [expandedSkus, setExpandedSkus] = useState<Set<string>>(new Set());
 
-    const { rows, orderedMonths } = useMemo(() => {
+    const { rows: allRows, orderedMonths } = useMemo(() => {
         if (!items) return { rows: [] as SalesRow[], orderedMonths: [] };
         const orderedMonths = getOrderedMonths(items);
         return { rows: buildRows(items, orderedMonths), orderedMonths };
     }, [items]);
 
-    const controls = useTableControls(rows);
+    const { filterValues, setFilterValue, clearFilter } = useFilters<SalesRow>();
+
+    const {
+        activeSmartFilterId,
+        toggleSmartFilter
+    } = useSmartFilters();
+
+    const data = useMemo(() => {
+        let result = allRows;
+
+        // Apply Smart Filters
+        if (activeSmartFilterId) {
+            const sf = smartFilters.find((f) => f.id === activeSmartFilterId);
+            if (sf) result = result.filter(sf.filterFn);
+        }
+
+        // Apply Simple Filters
+        Object.entries(filterValues).forEach(([id, value]) => {
+            const filter = simpleFilters.find((f) => f.id === id);
+            if (filter && value !== undefined && value !== "") {
+                result = result.filter(item => filter.filterFn(item, value));
+            }
+        });
+
+        return result;
+    }, [allRows, activeSmartFilterId, filterValues]);
+
+    const controls = useTableControls<SalesRow, SortField>({
+        data,
+        columnDefs: COLUMN_DEFS,
+        storageKeyPrefix: "sales-v1",
+        sortFn: sortSalesRows,
+        initialSort: { field: null, dir: "desc" }
+    });
     const { sortedRows, sort, toggleSort, clearSort, shrink, colVis } = controls;
     const isMonthShrunken = shrink.isShrunken("sales-shrink-v1");
+
+    const toggleExpand = useCallback((sku: string) => {
+        setExpandedSkus(prev => {
+            const next = new Set(prev);
+            if (next.has(sku)) next.delete(sku);
+            else next.add(sku);
+            return next;
+        });
+    }, []);
+
+    // Flatten sorted rows + expanded product sub-rows into a single array for the virtualizer
+    const flatRows = useMemo<FlatRow[]>(() => {
+        const result: FlatRow[] = [];
+        for (const row of sortedRows) {
+            result.push({ kind: "sku", row });
+            if (expandedSkus.has(row.sku) && (row.products?.length ?? 0) > 1) {
+                for (const product of row.products) {
+                    result.push({ kind: "product", product, parentRow: row });
+                }
+            }
+        }
+        return result;
+    }, [sortedRows, expandedSkus]);
 
     // Build colgroup widths — must stay in sync with what header+body render
     const colWidths = useMemo(() => {
         const w: number[] = [];
 
-        for (const key of ["col-mlb", "col-sku", "col-abc", "col-status"]) {
+        for (const key of ["col-sku", "col-abc", "col-status"]) {
             if (colVis.isVisible(key)) w.push(COL_W[key]);
         }
 
@@ -70,13 +138,12 @@ export default function SalesTable() {
     const tableMinWidth = colWidths.reduce((a, b) => a + b, 0);
 
     // measureElement lets the virtualizer measure real DOM row heights
-    // instead of relying on a fixed estimate — critical for rows with wrapping content
     const measureElement = useCallback((el: Element) => {
         return (el as HTMLElement).offsetHeight;
     }, []);
 
     const virtualizer = useVirtualizer({
-        count: sortedRows.length,
+        count: flatRows.length,
         getScrollElement: () => parentRef.current,
         estimateSize: () => 48,
         overscan: 10,
@@ -91,7 +158,19 @@ export default function SalesTable() {
         : 0;
 
     return (
-        <div className="flex flex-col max-h-[85vh] rounded-xl border border-border overflow-hidden bg-background shadow-sm">
+        <div className="flex flex-col max-h-[90vh] rounded-xl border border-border overflow-hidden bg-background shadow-sm">
+
+            <div className="p-4 border-b border-border bg-card/30">
+                <SalesDashboardFilters
+                    activeSmartFilter={activeSmartFilterId}
+                    onSmartFilter={toggleSmartFilter}
+                    filterValues={filterValues}
+                    onFilterChange={setFilterValue}
+                    onFilterClear={clearFilter}
+                    rows={allRows}
+                />
+            </div>
+
             <TableToolbar
                 sort={sort}
                 clearSort={clearSort}
@@ -137,15 +216,34 @@ export default function SalesTable() {
                         )}
 
                         {virtualItems.map((vRow) => {
-                            const row = sortedRows[vRow.index];
+                            const flatRow = flatRows[vRow.index];
+
+                            if (flatRow.kind === "sku") {
+                                const { row } = flatRow;
+                                return (
+                                    <SalesTableRow
+                                        key={`sku-${row.sku}`}
+                                        row={row}
+                                        index={vRow.index}
+                                        isMonthShrunken={isMonthShrunken}
+                                        colVis={colVis}
+                                        isExpanded={expandedSkus.has(row.sku)}
+                                        onToggle={() => toggleExpand(row.sku)}
+                                        data-index={vRow.index}
+                                        ref={virtualizer.measureElement}
+                                    />
+                                );
+                            }
+
+                            const { product, parentRow } = flatRow;
                             return (
-                                <SalesTableRow
-                                    key={`${row.productId}-${row.sku}-${vRow.index}`}
-                                    row={row}
-                                    index={vRow.index}
+                                <SalesProductRow
+                                    key={`product-${product.productId}`}
+                                    product={product}
+                                    parentRow={parentRow}
+                                    orderedMonths={orderedMonths}
                                     isMonthShrunken={isMonthShrunken}
                                     colVis={colVis}
-                                    // ref passed to virtualizer for dynamic height measurement
                                     data-index={vRow.index}
                                     ref={virtualizer.measureElement}
                                 />

@@ -4,8 +4,14 @@ import { MlSalesDashboard } from "@/models/mercado-livre/MlSalesDashboard";
 
 export class MlSalesDashboardRepository {
   async rebuild() {
+    // Garante que o índice único em `sku` exista antes do $merge
+    await MlSalesDashboard.syncIndexes();
+
     const pipeline = new SalesDashboardPipelineBuilder()
+      .filter()
       .joins()
+      .groupBySku()
+      .stockJoin()
       .project()
       .sort()
       .persist()

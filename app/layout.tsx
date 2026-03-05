@@ -1,18 +1,17 @@
 import type { Metadata } from "next";
-import { Rubik, Rubik_Mono_One } from "next/font/google";
+import { Rubik, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Providers } from "@/components/providers";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import AppSideBar from "@/components/app-sidebar";
 
 const font = Rubik({
-  variable: "--font-rubik",
+  variable: "--font-sans",
   subsets: ["latin"],
 });
 
-const fontMono = Rubik_Mono_One({
-  variable: "--font-rubik-mono",
-  weight: ["400"]
+const fontMono = Geist_Mono({
+  variable: "--font-mono",
 });
 
 export const metadata: Metadata = {

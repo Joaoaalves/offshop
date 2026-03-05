@@ -5,7 +5,7 @@ export const MergeStage = {
     return {
       $merge: {
         into: "salesdashboard",
-        on: "productId",
+        on: "sku",
         whenMatched: "replace",
         whenNotMatched: "insert",
       },

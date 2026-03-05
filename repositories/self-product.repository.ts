@@ -1,3 +1,4 @@
+import "@/models/Supplier";
 import { SelfProduct } from "@/models/SelfProduct";
 
 export class SelfProductRepository {

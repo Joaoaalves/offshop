@@ -1,10 +1,10 @@
-import { AbcCurve, AbcCurveChange } from "@/types/enums";
+import { AbcCurve } from "@/types/enums";
 
 export const AbcProjection = {
   fields() {
     return {
-      abcCurve: { $ifNull: ["$_abc.abcCurve", AbcCurve.C] },
-      abcCumulativePct: { $ifNull: ["$_abc.abcCumulativePct", 0] },
+      abcCurve: { $ifNull: ["$abcCurve", AbcCurve.C] },
+      abcCumulativePct: { $ifNull: ["$abcCumulativePct", 0] },
     };
   },
 };

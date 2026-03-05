@@ -1,3 +1,4 @@
+import { SalesDashboardFilters } from "./filters/sales-dashboard-filter";
 import SalesTable from "./table/sales-table";
 
 

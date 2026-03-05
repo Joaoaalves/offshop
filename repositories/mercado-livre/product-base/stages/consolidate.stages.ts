@@ -17,6 +17,7 @@ export const ConsolidateStages = {
         itemRelation: 1,
         catalogListing: 1,
         availableQuantity: 1,
+        supplier: 1,
         isNew: 1,
         months: 1,
         totals: 1,

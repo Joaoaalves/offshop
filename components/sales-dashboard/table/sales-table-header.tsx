@@ -6,7 +6,8 @@ import {
 import { monthName } from "@/lib/date-utils";
 import { Fragment } from "react/jsx-runtime";
 import { BarChart2, Box, CalendarDays, TrendingUp, Repeat2, Layers, ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
-import { SortField, SortState } from "@/hooks/tables/use-table-controls";
+import { SortState } from "@/hooks/tables/use-table-controls";
+import { SortField } from "./sales-table-config";
 import { cn } from "@/lib/utils";
 import { MONTH_COLS_EXPANDED, MONTH_COLS_SHRUNKEN } from "./month-cells";
 
@@ -15,7 +16,7 @@ type ColVis = { isVisible: (key: string) => boolean };
 
 type Props = {
     orderedMonths: { year: number; month: number }[];
-    sort: SortState;
+    sort: SortState<SortField>;
     onSort: (field: SortField) => void;
     isMonthShrunken: boolean;
     colVis: ColVis;
@@ -28,7 +29,7 @@ const MONTH_STYLES = [
 
 // ─── SortableHead ─────────────────────────────────────────────────────────────
 function SortableHead({
-    field, sort, onSort, children, className, rowSpan,
+    field, sort, onSort, children, className, rowSpan, style,
 }: {
     field: SortField;
     sort: SortState;
@@ -36,12 +37,14 @@ function SortableHead({
     children: React.ReactNode;
     className?: string;
     rowSpan?: number;
+    style?: React.CSSProperties;
 }) {
     const active = sort.field === field;
     return (
         <TableHead
             rowSpan={rowSpan}
             onClick={() => onSort(field)}
+            style={style}
             className={cn(
                 "cursor-pointer select-none group",
                 "text-center font-medium text-[11px] uppercase tracking-wider px-3 py-2 whitespace-nowrap",
@@ -69,10 +72,10 @@ function GroupHead({ icon: Icon, label, colSpan, rowSpan, className }: {
     return (
         <TableHead
             colSpan={colSpan} rowSpan={rowSpan}
-            className={cn("text-center font-semibold tracking-wider text-[11px] uppercase px-3 py-2.5 whitespace-nowrap", className)}
+            className={cn("text-center font-semibold tracking-wider text-[9px] uppercase px-3 py-2.5 whitespace-nowrap", className)}
         >
             <span className="inline-flex items-center justify-center gap-1.5">
-                {Icon && <Icon className="w-3.5 h-3.5 opacity-80" />}
+                {Icon && <Icon className="w-3 h-3 opacity-80" />}
                 {label}
             </span>
         </TableHead>
@@ -98,13 +101,14 @@ export default function SalesDashboardTableHeader({
     const showStockFlex = colVis.isVisible("col-stock-flex");
     const showConv = colVis.isVisible("col-conversion");
 
-    const productColSpan = [showMlb, showSku, showAbc, showStatus].filter(Boolean).length;
+    const productColSpan = [showSku, showAbc, showStatus].filter(Boolean).length;
     const avgColSpan = [showAvgRev, showAvgUn].filter(Boolean).length;
     const totalColSpan = [showTotalRev, showTotalUn].filter(Boolean).length;
     const stockColSpan = [showStockFull, showStockFlex].filter(Boolean).length;
 
+
     return (
-        <TableHeader className="text-xs sticky top-0 z-20">
+        <TableHeader className="text-xs sticky top-0 z-20 shadow-xl shadow-black">
 
             {/* ── ROW 1: Groups ─────────────────────────────────── */}
             <TableRow className="hover:bg-transparent border-b-2 border-slate-700">
@@ -136,21 +140,20 @@ export default function SalesDashboardTableHeader({
 
             {/* ── ROW 2: Sub-groups + month names ───────────────── */}
             <TableRow className="hover:bg-transparent border-b border-slate-700">
-                {showMlb && <SortableHead field="productId" sort={sort} onSort={onSort} rowSpan={2}
-                    className="bg-white dark:bg-zinc-950 text-slate-600 dark:text-slate-400">MLB</SortableHead>}
                 {showSku && <SortableHead field="sku" sort={sort} onSort={onSort} rowSpan={2}
-                    className="bg-white dark:bg-zinc-950 text-slate-600 dark:text-slate-400">SKU</SortableHead>}
+                    style={{ left: 0 }}
+                    className="bg-white dark:bg-zinc-950 text-slate-600 dark:text-slate-400 text-[9px] font-semibold border-r-2 border-slate-200 dark:border-slate-700">SKU</SortableHead>}
                 {showAbc && <SortableHead field="abcCurve" sort={sort} onSort={onSort} rowSpan={2}
-                    className="bg-white dark:bg-zinc-950 text-slate-600 dark:text-slate-400">Curva</SortableHead>}
+                    className="bg-white dark:bg-zinc-950 text-slate-600 dark:text-slate-400 text-[9px] font-semibold">Curva</SortableHead>}
                 {showStatus && <SortableHead field="status" sort={sort} onSort={onSort} rowSpan={2}
-                    className="bg-white dark:bg-zinc-950 text-slate-600 dark:text-slate-400 border-r-2 border-slate-200 dark:border-slate-700">Status</SortableHead>}
+                    className="bg-white dark:bg-zinc-950 text-slate-600 dark:text-slate-400 border-r-2 border-slate-200 dark:border-slate-700 text-[9px] font-semibold">Status</SortableHead>}
 
                 {/* Month name headers */}
                 {orderedMonths.map((m, idx) => {
                     const style = MONTH_STYLES[idx % 2];
                     return (
                         <TableHead key={`${m.year}-${m.month}`} colSpan={colsPerMonth}
-                            className={cn("text-center font-semibold text-[11px] uppercase tracking-widest px-2 py-2 border-x border-slate-700", style.group)}>
+                            className={cn("text-center font-bold text-[9px] uppercase tracking-widest px-2 py-2 border-x border-slate-700", style.group)}>
                             <span className="inline-flex flex-col items-center leading-tight gap-0.5">
                                 <span>{monthName(m.month)}</span>
                                 <span className="text-[9px] font-normal opacity-60">{m.year}</span>
@@ -166,7 +169,7 @@ export default function SalesDashboardTableHeader({
                 {showTotalRev && <SortableHead field="totalRevenue" sort={sort} onSort={onSort} rowSpan={2}
                     className="bg-violet-800 text-violet-100 border-x border-violet-700">Receita</SortableHead>}
                 {showTotalUn && <SortableHead field="totalUnits" sort={sort} onSort={onSort} rowSpan={2}
-                    className="bg-violet-800 text-violet-100 border-r-2 border-violet-700">Unidades</SortableHead>}
+                    className="bg-violet-800 text-violet-100 border-r-2 border-violet-700">Un</SortableHead>}
                 {showStockFull && <SortableHead field="availableQuantity" sort={sort} onSort={onSort} rowSpan={2}
                     className="bg-sky-600 text-white border-x border-sky-500">Full</SortableHead>}
                 {showStockFlex && (
@@ -178,7 +181,7 @@ export default function SalesDashboardTableHeader({
             </TableRow>
 
             {/* ── ROW 3: Month column details ────────────────────── */}
-            <TableRow className="hover:bg-transparent border-b-2 border-slate-700 shadow-lg shadow-black/20 bg-white">
+            <TableRow className="bg-white border-slate-700">
                 {orderedMonths.map((m, idx) => {
                     const style = MONTH_STYLES[idx % 2];
                     const headCls = (extra: string) =>
@@ -187,18 +190,18 @@ export default function SalesDashboardTableHeader({
                     if (isMonthShrunken) {
                         return (
                             <Fragment key={`${m.year}-${m.month}-detail`}>
-                                <TableHead className={headCls("text-left border-l border-slate-700")}>R$</TableHead>
-                                <TableHead className={headCls("border-r-2 border-slate-700")}>Un</TableHead>
+                                <TableHead className={headCls("text-[9px] font-semibold text-left border-l border-slate-700")}>R$</TableHead>
+                                <TableHead className={headCls("text-[9px] font-semibold border-r-2 border-slate-700")}>Un</TableHead>
                             </Fragment>
                         );
                     }
 
                     return (
                         <Fragment key={`${m.year}-${m.month}-detail`}>
-                            <TableHead className={headCls("text-left border-l border-slate-700")}>R$</TableHead>
-                            <TableHead className={headCls("border-slate-600")}>Full</TableHead>
-                            <TableHead className={headCls("border-slate-600")}>Flex</TableHead>
-                            <TableHead className={headCls("border-r-2 border-slate-700")}>Ag / Col</TableHead>
+                            <TableHead className={headCls("text-[9px] font-semibold text-left border-l border-slate-700")}>R$</TableHead>
+                            <TableHead className={headCls("text-[9px] font-semibold border-slate-600")}>Full</TableHead>
+                            <TableHead className={headCls("text-[9px] font-semibold border-slate-600")}>Flex</TableHead>
+                            <TableHead className={headCls("text-[9px] font-semibold border-r-2 border-slate-700")}>Ag / Col</TableHead>
                         </Fragment>
                     );
                 })}

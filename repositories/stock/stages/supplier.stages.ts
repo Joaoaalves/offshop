@@ -6,8 +6,32 @@ export const SupplierStages = {
       {
         $lookup: {
           from: "internalproducts",
-          localField: "_id",
-          foreignField: "baseSku",
+          let: {
+            baseSku: {
+              $let: {
+                vars: {
+                  r: {
+                    $regexFind: {
+                      input: "$sku",
+                      regex: "^(?:\\d+U-)?(.+)$",
+                    },
+                  },
+                },
+                in: {
+                  $arrayElemAt: ["$$r.captures", 0],
+                },
+              },
+            },
+          },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $eq: ["$baseSku", "$$baseSku"],
+                },
+              },
+            },
+          ],
           as: "internalProduct",
         },
       },

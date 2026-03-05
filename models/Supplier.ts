@@ -1,7 +1,7 @@
 import { ISupplier } from "@/types/supplier";
 import { model, models, Schema } from "mongoose";
 
-const SupplierSchema = new Schema<ISupplier>({
+export const SupplierSchema = new Schema<ISupplier>({
   name: { type: String, required: true },
 
   leadTimeDays: { type: Number, required: true },

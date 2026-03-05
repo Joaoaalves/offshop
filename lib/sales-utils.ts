@@ -1,5 +1,4 @@
-import { AbcCurve, AbcCurveChange, Trend } from "@/types/enums";
-import { IMlProductBase } from "@/types/mercado-livre";
+import { AbcCurve, Trend } from "@/types/enums";
 import { IMonthBucket, ISalesDashboardItem, SalesRow } from "@/types/sales";
 
 // ─── Month helpers ────────────────────────────────────────────────────────────
@@ -29,6 +28,22 @@ export function existed(month: Date, created: Date): boolean {
   return cYear === mYear && cMonth <= mMonth;
 }
 
+// ─── Month placeholder ────────────────────────────────────────────────────────
+
+export function emptyMonth(year: number, month: number): IMonthBucket {
+  return {
+    year,
+    month,
+    date: new Date(year, month - 1),
+    views: 0,
+    conversionRate: 0,
+    total: { items: 0, revenue: 0, orders: 0 },
+    fulfillment: { items: 0, revenue: 0, orders: 0 },
+    flex: { items: 0, revenue: 0, orders: 0 },
+    dropOff: { items: 0, revenue: 0, orders: 0 },
+  };
+}
+
 // ─── Conversion ───────────────────────────────────────────────────────────────
 
 export function calcConversion(month: IMonthBucket | null): number {
@@ -42,7 +57,7 @@ export function calcConversion(month: IMonthBucket | null): number {
 export function statusLabel(status: string): string {
   if (status === "active") return "Ativo";
   if (status === "paused") return "Pausado";
-  return "Em Revisão";
+  return "Revisão";
 }
 
 export function statusVariant(
@@ -83,34 +98,42 @@ export function buildRows(
 
     const resolvedMonths = orderedMonths.map(
       (m) =>
-        monthMap.get(`${m.year}-${m.month}`) ?? {
-          year: m.year,
-          month: m.month,
-          units: 0,
-          revenue: 0,
-          views: 0,
-        },
+        monthMap.get(`${m.year}-${m.month}`) ?? emptyMonth(m.year, m.month),
     );
 
     const now = new Date();
-    const currentMonth = monthMap.get(
-      `${now.getFullYear()}-${now.getMonth() + 1}`,
-    ) ?? {
-      units: 0,
-      revenue: 0,
-      views: 0,
-    };
+    const currentMonth =
+      monthMap.get(`${now.getFullYear()}-${now.getMonth() + 1}`) ?? null;
 
     return { ...row, resolvedMonths, currentMonth };
   });
 }
 
+// ─── Product month builder (para linhas de produto dentro do SKU) ─────────────
+
+export function buildProductMonths(
+  productMonths: IMonthBucket[],
+  orderedMonths: { year: number; month: number }[],
+): { resolvedMonths: IMonthBucket[]; currentMonth: IMonthBucket | null } {
+  const monthMap = new Map<string, IMonthBucket>();
+  productMonths.forEach((m) => monthMap.set(`${m.year}-${m.month}`, m));
+
+  const resolvedMonths = orderedMonths.map(
+    (m) =>
+      monthMap.get(`${m.year}-${m.month}`) ?? emptyMonth(m.year, m.month),
+  );
+
+  const now = new Date();
+  const currentMonth =
+    monthMap.get(`${now.getFullYear()}-${now.getMonth() + 1}`) ?? null;
+
+  return { resolvedMonths, currentMonth };
+}
+
 export const toTrendArray = (f: string[]) =>
   f.map((value) => Number(value) as Trend);
 
-export const extractUnits = (
-  p: ISalesDashboardItem<IMlProductBase>,
-): number => {
+export const extractUnits = (p: ISalesDashboardItem): number => {
   var reg = /^([0-9]+U-)/;
   const matches = p.sku.match(reg);
   if (matches) {
@@ -120,11 +143,11 @@ export const extractUnits = (
   return 1;
 };
 
-export const isDead = (p: ISalesDashboardItem<IMlProductBase>): boolean => {
+export const isDead = (p: ISalesDashboardItem): boolean => {
   return !p.isNew && p.dailyAvg45.units === 0;
 };
 
-export function detectAbruptDrop(product: ISalesDashboardItem<IMlProductBase>) {
+export function detectAbruptDrop(product: ISalesDashboardItem) {
   const months = product.months;
 
   if (months.length < 4 || !isDead(product)) return false;
