@@ -4,6 +4,7 @@ export const BaseProjection = {
       sku: 1,
       name: 1,
       image: 1,
+      link: 1,
       dateCreated: 1,
       status: 1,
       logisticType: 1,

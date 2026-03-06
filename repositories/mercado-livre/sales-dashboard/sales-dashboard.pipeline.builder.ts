@@ -5,6 +5,7 @@ import { StockJoin } from "./joins/stock.joinl";
 import { FinalProjection } from "./projections/final.projection";
 import { MergeStage } from "./stages/merge.stage";
 import { GroupBySkuStages } from "./stages/group-by-sku.stages";
+import { SkuAbcStages } from "./stages/sku-abc.stages";
 
 export class SalesDashboardPipelineBuilder {
   private stages: PipelineStage[] = [];
@@ -29,6 +30,11 @@ export class SalesDashboardPipelineBuilder {
 
   groupBySku() {
     this.stages.push(...GroupBySkuStages.build());
+    return this;
+  }
+
+  skuAbc() {
+    this.stages.push(...SkuAbcStages.build());
     return this;
   }
 

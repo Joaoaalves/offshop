@@ -25,16 +25,26 @@ export const GroupBySkuStages = {
         image: { $first: "$image" },
         dateCreated: { $first: "$dateCreated" },
 
-        // Analytics SKU-level (do produto dominante — primeiro da ordem)
+        // Analytics SKU-level — trend/momentum do produto dominante
+        // regression e conversionDrop são agregados em flattenMonths
         trend: { $first: "$_trend.trend" },
         momentum: { $first: "$_trend.momentum" },
         earlySignal: { $first: "$_trend.earlySignal" },
-        regression: { $first: "$_trend.regression" },
-        conversionDropped: { $first: "$_trend.conversionDropped" },
-        conversionDropPct: { $first: "$_trend.conversionDropPct" },
 
-        abcCurve: { $first: "$_abc.abcCurve" },
-        abcCumulativePct: { $first: "$_abc.abcCumulativePct" },
+        // Acumuladores para regressão ponderada pela receita de cada produto
+        _wRegSlope:      { $sum: { $multiply: [{ $ifNull: ["$_trend.regression.slope",      0] }, "$totals.revenue"] } },
+        _wRegIntercept:  { $sum: { $multiply: [{ $ifNull: ["$_trend.regression.intercept",  0] }, "$totals.revenue"] } },
+        _wRegR2:         { $sum: { $multiply: [{ $ifNull: ["$_trend.regression.r2",         0] }, "$totals.revenue"] } },
+        _wRegSlopePct:   { $sum: { $multiply: [{ $ifNull: ["$_trend.regression.slopePct",   0] }, "$totals.revenue"] } },
+        _wRegAvgRevenue: { $sum: { $multiply: [{ $ifNull: ["$_trend.regression.avgRevenue", 0] }, "$totals.revenue"] } },
+
+        // Queda de conversão: qualquer produto com queda → true; pct ponderada
+        _convDropCount:  { $sum: { $cond: [{ $ifNull: ["$_trend.conversionDropped", false] }, 1, 0] } },
+        _wConvDropPct:   { $sum: { $multiply: [{ $ifNull: ["$_trend.conversionDropPct", 0] }, "$totals.revenue"] } },
+
+        // abcCumulativePct ponderado pela receita — reclassificado em flattenMonths
+        // (fallback 100 = sem dados de ABC = tier C)
+        _wAbcCumulativePct: { $sum: { $multiply: [{ $ifNull: ["$_abc.abcCumulativePct", 100] }, "$totals.revenue"] } },
 
         // Totais agregados
         totalUnits: { $sum: "$totals.units" },
@@ -43,7 +53,8 @@ export const GroupBySkuStages = {
         totalViews: { $sum: "$totals.views" },
 
         // Campos representativos do SKU
-        _isNewCount: { $sum: { $cond: ["$isNew", 1, 0] } },
+        // isNew = true somente se TODOS os produtos são novos
+        _notNewCount: { $sum: { $cond: ["$isNew", 0, 1] } },
         _activeCount: { $sum: { $cond: [{ $eq: ["$status", "active"] }, 1, 0] } },
         _fulfillmentCount: { $sum: { $cond: [{ $eq: ["$logisticType", "fulfillment"] }, 1, 0] } },
         _firstStatus: { $first: "$status" },
@@ -110,7 +121,21 @@ export const GroupBySkuStages = {
           orders: "$totalOrders",
           views: "$totalViews",
         },
-        isNew: { $gt: ["$_isNewCount", 0] },
+        isNew: { $eq: ["$_notNewCount", 0] },
+        // ABC ponderado: média ponderada pela receita, depois reclassifica com os
+        // mesmos thresholds do CurveStages.classify() (A ≤ 80, B ≤ 95, C = resto)
+        abcCumulativePct: {
+          $cond: [{ $gt: ["$totalRevenue", 0] }, { $divide: ["$_wAbcCumulativePct", "$totalRevenue"] }, 100],
+        },
+        abcCurve: {
+          $switch: {
+            branches: [
+              { case: { $lte: [{ $cond: [{ $gt: ["$totalRevenue", 0] }, { $divide: ["$_wAbcCumulativePct", "$totalRevenue"] }, 100] }, 80] }, then: AbcCurve.A },
+              { case: { $lte: [{ $cond: [{ $gt: ["$totalRevenue", 0] }, { $divide: ["$_wAbcCumulativePct", "$totalRevenue"] }, 100] }, 95] }, then: AbcCurve.B },
+            ],
+            default: AbcCurve.C,
+          },
+        },
         status: {
           $cond: [{ $gt: ["$_activeCount", 0] }, "active", "$_firstStatus"],
         },
@@ -126,6 +151,17 @@ export const GroupBySkuStages = {
           units: "$_dailyAvg45Units",
           activeDays: "$_dailyAvg45ActiveDays",
         },
+        // Regressão ponderada pela receita de cada produto
+        regression: {
+          slope:      { $cond: [{ $gt: ["$totalRevenue", 0] }, { $divide: ["$_wRegSlope",      "$totalRevenue"] }, 0] },
+          intercept:  { $cond: [{ $gt: ["$totalRevenue", 0] }, { $divide: ["$_wRegIntercept",  "$totalRevenue"] }, 0] },
+          r2:         { $cond: [{ $gt: ["$totalRevenue", 0] }, { $divide: ["$_wRegR2",         "$totalRevenue"] }, 0] },
+          slopePct:   { $cond: [{ $gt: ["$totalRevenue", 0] }, { $divide: ["$_wRegSlopePct",   "$totalRevenue"] }, 0] },
+          avgRevenue: { $cond: [{ $gt: ["$totalRevenue", 0] }, { $divide: ["$_wRegAvgRevenue", "$totalRevenue"] }, 0] },
+        },
+        // Queda de conversão: true se qualquer produto caiu; pct = média ponderada
+        conversionDropped: { $gt: ["$_convDropCount", 0] },
+        conversionDropPct: { $cond: [{ $gt: ["$totalRevenue", 0] }, { $divide: ["$_wConvDropPct", "$totalRevenue"] }, 0] },
         _flatMonths: {
           $reduce: {
             input: "$_allMonths",
@@ -236,7 +272,9 @@ export const GroupBySkuStages = {
                 month: "$_id.month",
                 date: "$monthDate",
                 views: "$views",
-                conversionRate: 0,
+                conversionRate: {
+                  $cond: [{ $gt: ["$views", 0] }, { $divide: ["$totalOrders", "$views"] }, 0],
+                },
                 total: {
                   items: "$totalItems",
                   revenue: "$totalRevenue",
@@ -277,6 +315,7 @@ export const GroupBySkuStages = {
       this.flattenMonths(),
       this.unwindMonths(),
       this.groupByMonth(),
+      { $sort: { "_id.sku": 1, "_id.year": 1, "_id.month": 1 } },
       this.collectMonths(),
       // Expõe sku como campo para joins e merge subsequentes
       { $addFields: { sku: "$_id" } },

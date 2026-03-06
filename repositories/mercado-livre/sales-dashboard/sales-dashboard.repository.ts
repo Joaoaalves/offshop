@@ -11,6 +11,7 @@ export class MlSalesDashboardRepository {
       .filter()
       .joins()
       .groupBySku()
+      .skuAbc()
       .stockJoin()
       .project()
       .sort()

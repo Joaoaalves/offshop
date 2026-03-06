@@ -39,6 +39,11 @@ export const SalesProductRow = memo(
             }
         };
 
+        const handleNavigate = () => {
+            if (window)
+                window.open(product.link, "_blank")
+        }
+
         const { resolvedMonths, currentMonth } = useMemo(
             () => buildProductMonths(product.months, orderedMonths),
             [product.months, orderedMonths]
@@ -63,14 +68,12 @@ export const SalesProductRow = memo(
                             <div className="w-1 h-1 rounded-full bg-muted-foreground/40 shrink-0" />
                             <div className="flex flex-col min-w-0">
                                 <Tooltip>
-                                    <TooltipTrigger asChild>
-                                        <a
-                                            href={product.link}
-                                            target="_blank"
-                                            className="text-[10px] font-semibold text-primary hover:underline underline-offset-2 whitespace-nowrap"
+                                    <TooltipTrigger onClick={handleNavigate} asChild>
+                                        <span
+                                            className="text-[10px] font-semibold cursor-pointer text-primary hover:underline underline-offset-2 whitespace-nowrap"
                                         >
                                             {product.productId}
-                                        </a>
+                                        </span>
                                     </TooltipTrigger>
                                     <TooltipContent>{product.name}</TooltipContent>
                                 </Tooltip>
@@ -103,9 +106,7 @@ export const SalesProductRow = memo(
                         style={{ left: skuLeft }}
                         onClick={handleClipboard}
                     >
-                        <span className="font-mono font-semibold text-[9px] text-muted-foreground truncate cursor-pointer">
-                            {product.sku}
-                        </span>
+
                     </TableCell>
                 )} */}
 

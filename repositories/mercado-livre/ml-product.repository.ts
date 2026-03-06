@@ -15,7 +15,7 @@ export class MlProductRepository {
               unitsPerPack: product.unitsPerPack,
               name: product.name,
               image: product.image,
-              link: product.link,
+              link: product.permalink,
               price: product.price,
               catalogListing: product.catalogListing,
               availableQuantity: product.availableQuantity,

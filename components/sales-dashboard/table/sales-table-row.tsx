@@ -83,10 +83,17 @@ export const SalesTableRow = memo(
                                     }
                                 </button>
                             )}
-                            <div className="flex flex-col min-w-0">
-                                <span className="text-[10px] text-muted-foreground">
-                                    {row.products?.length ?? 1} anúncio{(row.products?.length ?? 1) !== 1 ? "s" : ""}
-                                </span>
+                            <div className="flex items-center justify-center  gap-x-2 min-w-0">
+                                {row.products?.length === 1 ?
+                                    <span className="text-[10px] text-muted-foreground">
+                                        {row.products[0].productId}
+                                    </span>
+                                    :
+                                    <span className="text-[10px] text-muted-foreground">
+                                        {row.products?.length ?? 1} anúncio{(row.products?.length ?? 1) !== 1 ? "s" : ""}
+                                    </span>
+                                }
+
                                 <StockTag product={row} />
                             </div>
                         </div>
