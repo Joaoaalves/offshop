@@ -5,7 +5,9 @@ export class MlProductRepository {
   async upsertMany(products: any[]) {
     if (!products.length) return;
 
-    return MlProduct.bulkWrite(
+    const incomingIds = products.map((p) => p.productId);
+
+    await MlProduct.bulkWrite(
       products.map((product) => ({
         updateOne: {
           filter: { productId: product.productId },
@@ -31,6 +33,8 @@ export class MlProductRepository {
       })),
       { ordered: false },
     );
+
+    await MlProduct.deleteMany({ productId: { $nin: incomingIds } });
   }
 
   async insertManyViews(views: any[]) {
