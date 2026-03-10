@@ -61,10 +61,13 @@ export const GroupBySkuStages = {
         _firstLogisticType: { $first: "$logisticType" },
         availableQuantity: { $sum: "$availableQuantity" },
 
-        // dailyAvg45 agregado
+        // dailyAvg45 e dailyAvg30 agregados
         _dailyAvg45Revenue: { $sum: "$dailyAvg45.revenue" },
         _dailyAvg45Units: { $sum: "$dailyAvg45.units" },
         _dailyAvg45ActiveDays: { $max: "$dailyAvg45.activeDays" },
+        _dailyAvg30Revenue: { $sum: "$dailyAvg30.revenue" },
+        _dailyAvg30Units: { $sum: "$dailyAvg30.units" },
+        _dailyAvg30ActiveDays: { $max: "$dailyAvg30.activeDays" },
 
         // Array de arrays de months (um por produto) — será achatado na próxima etapa
         _allMonths: { $push: "$months" },
@@ -87,6 +90,7 @@ export const GroupBySkuStages = {
             months: "$months",
             totals: "$totals",
             dailyAvg45: "$dailyAvg45",
+            dailyAvg30: "$dailyAvg30",
             dateCreated: "$dateCreated",
             trend: { $ifNull: ["$_trend.trend", Trend.INSUFICIENT] },
             momentum: { $ifNull: ["$_trend.momentum", Momentum.STABLE] },
@@ -151,6 +155,11 @@ export const GroupBySkuStages = {
           units: "$_dailyAvg45Units",
           activeDays: "$_dailyAvg45ActiveDays",
         },
+        dailyAvg30: {
+          revenue: "$_dailyAvg30Revenue",
+          units: "$_dailyAvg30Units",
+          activeDays: "$_dailyAvg30ActiveDays",
+        },
         // Regressão ponderada pela receita de cada produto
         regression: {
           slope:      { $cond: [{ $gt: ["$totalRevenue", 0] }, { $divide: ["$_wRegSlope",      "$totalRevenue"] }, 0] },
@@ -214,6 +223,7 @@ export const GroupBySkuStages = {
         logisticType: { $first: "$logisticType" },
         availableQuantity: { $first: "$availableQuantity" },
         dailyAvg45: { $first: "$dailyAvg45" },
+        dailyAvg30: { $first: "$dailyAvg30" },
         products: { $first: "$products" },
 
         // Métricas do mês somadas entre produtos
@@ -261,6 +271,7 @@ export const GroupBySkuStages = {
         logisticType: { $first: "$logisticType" },
         availableQuantity: { $first: "$availableQuantity" },
         dailyAvg45: { $first: "$dailyAvg45" },
+        dailyAvg30: { $first: "$dailyAvg30" },
         products: { $first: "$products" },
 
         months: {

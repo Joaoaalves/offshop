@@ -13,7 +13,7 @@ export const SupplierStages = {
                   r: {
                     $regexFind: {
                       input: "$sku",
-                      regex: "^(?:\\d+U-)?(.+)$",
+                      regex: /^([0-9]+)U-/,
                     },
                   },
                 },

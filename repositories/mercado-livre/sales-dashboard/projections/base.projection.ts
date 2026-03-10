@@ -13,6 +13,7 @@ export const BaseProjection = {
       months: 1,
       totals: 1,
       dailyAvg45: 1,
+      dailyAvg30: 1,
       products: 1,
     };
   },

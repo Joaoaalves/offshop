@@ -14,6 +14,7 @@ export interface IMlProduct extends IExternalProduct<
 > {
   catalogListing: boolean; // If true, is a catalog item
   itemRelation?: string; // Another productId
+  inventoryId?: string;
 }
 
 export type IMlProductBase = IProductBaseCache<IMlProduct>;

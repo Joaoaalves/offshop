@@ -66,6 +66,11 @@ export interface IMlSalesDashboardProduct {
     units: number;
     activeDays: number;
   };
+  dailyAvg30: {
+    revenue: number;
+    units: number;
+    activeDays: number;
+  };
   dateCreated: Date;
 
   // Analytics por produto
@@ -102,6 +107,11 @@ export interface ISalesDashboardItem {
     views: number;
   };
   dailyAvg45: {
+    revenue: number;
+    units: number;
+    activeDays: number;
+  };
+  dailyAvg30: {
     revenue: number;
     units: number;
     activeDays: number;

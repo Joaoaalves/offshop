@@ -33,6 +33,8 @@ interface TableToolbarProps {
     toggleColumn: (key: string) => void;
     resetVisibility: () => void;
     totalRows: number;
+    avgPeriod: 30 | 45;
+    toggleAvgPeriod: () => void;
 }
 
 // Group COLUMN_DEFS by their group label
@@ -47,6 +49,7 @@ const COL_GROUPS = Array.from(
 export function TableToolbar({
     sort, clearSort, shrunken, toggleShrink,
     visibility, toggleColumn, resetVisibility, totalRows,
+    avgPeriod, toggleAvgPeriod,
 }: TableToolbarProps) {
     const hiddenCount = Object.values(visibility).filter((v) => !v).length;
     const isMonthShrunken = shrunken.has("sales-shrink-v1");
@@ -73,22 +76,35 @@ export function TableToolbar({
 
             {/* RIGHT — controls */}
             <div className="flex items-center gap-2">
-                {/* Shrink toggle */}
-                <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => toggleShrink("sales-shrink-v1")}
-                    className={cn(
-                        "h-8 text-[11px] gap-1.5",
-                        !isMonthShrunken && "bg-slate-900 text-white border-slate-900 hover:bg-slate-800 hover:text-white dark:bg-slate-100 dark:text-slate-900"
-                    )}
-                >
-                    {isMonthShrunken
-                        ? <ChevronsLeftRight className="w-3.5 h-3.5" />
-                        : <ChevronsRightLeft className="w-3.5 h-3.5" />
-                    }
-                    {isMonthShrunken ? "Mostrar detalhes logística" : "Ocultar detalhes logística"}
-                </Button>
+                {/* Grouped: period + shrink */}
+                <div className="flex items-center rounded-md border border-border divide-x divide-border overflow-hidden">
+                    <button
+                        onClick={toggleAvgPeriod}
+                        className={cn(
+                            "h-8 px-3 text-[11px] gap-1.5 flex items-center transition-colors",
+                            avgPeriod === 30
+                                ? "bg-violet-700 text-white hover:bg-violet-600"
+                                : "bg-background text-muted-foreground hover:bg-muted hover:text-foreground"
+                        )}
+                    >
+                        {avgPeriod}d
+                    </button>
+                    <button
+                        onClick={() => toggleShrink("sales-shrink-v1")}
+                        className={cn(
+                            "h-8 px-3 text-[11px] flex items-center gap-1.5 transition-colors",
+                            !isMonthShrunken
+                                ? "bg-slate-900 text-white hover:bg-slate-800 dark:bg-slate-100 dark:text-slate-900"
+                                : "bg-background text-muted-foreground hover:bg-muted hover:text-foreground"
+                        )}
+                    >
+                        {isMonthShrunken
+                            ? <ChevronsLeftRight className="w-3.5 h-3.5" />
+                            : <ChevronsRightLeft className="w-3.5 h-3.5" />
+                        }
+                        {isMonthShrunken ? "Detalhes" : "Compactar"}
+                    </button>
+                </div>
 
                 {/* Column visibility — shadcn DropdownMenu + CheckboxItem */}
                 <DropdownMenu>
@@ -147,8 +163,18 @@ export function TableToolbar({
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
+const MONTH_NAMES = ["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"];
+
 function sortFieldLabel(field: SortField): string {
-    const map: Record<SortField, string> = {
+    if (field.startsWith("month-")) {
+        const parts = field.split("-");
+        const type  = parts[1]; // "rev" | "un"
+        const year  = parts[2];
+        const month = Number(parts[3]);
+        const name  = MONTH_NAMES[month - 1] ?? month;
+        return `${name}/${year} ${type === "rev" ? "R$" : "Un"}`;
+    }
+    const map: Record<string, string> = {
         sku: "SKU",
         abcCurve: "Curva",
         status: "Status",

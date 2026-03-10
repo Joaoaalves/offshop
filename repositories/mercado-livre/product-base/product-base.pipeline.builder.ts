@@ -35,7 +35,7 @@ export class ProductBasePipelineBuilder {
   }
 
   withTotals() {
-    this.stages.push(TotalsStages.lookup(), TotalsStages.compute());
+    this.stages.push(...TotalsStages.lookup(), TotalsStages.compute());
     return this;
   }
 

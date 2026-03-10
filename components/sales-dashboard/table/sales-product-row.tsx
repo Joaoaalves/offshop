@@ -10,7 +10,6 @@ import { MonthCells } from "./month-cells";
 import { ConversionCell } from "./conversion-cell";
 import { forwardRef, memo, useMemo } from "react";
 import { IMlSalesDashboardProduct, SalesRow } from "@/types/sales";
-import { toast } from "sonner";
 
 type ColVis = { isVisible: (key: string) => boolean };
 
@@ -27,17 +26,9 @@ export const SalesProductRow = memo(
         orderedMonths: { year: number; month: number }[];
         isMonthShrunken: boolean;
         colVis: ColVis;
+        avgPeriod: 30 | 45;
         "data-index"?: number;
-    }>(function SalesProductRow({ product, parentRow, orderedMonths, isMonthShrunken, colVis, ...rest }, ref) {
-
-        const handleClipboard = async () => {
-            try {
-                await navigator.clipboard.writeText(product.sku);
-                toast.success("SKU copiado com sucesso!");
-            } catch {
-                toast.error("Ocorreu um erro ao copiar o SKU!");
-            }
-        };
+    }>(function SalesProductRow({ product, parentRow, orderedMonths, isMonthShrunken, colVis, avgPeriod, ...rest }, ref) {
 
         const handleNavigate = () => {
             if (window)
@@ -48,9 +39,6 @@ export const SalesProductRow = memo(
             () => buildProductMonths(product.months, orderedMonths),
             [product.months, orderedMonths]
         );
-
-        // Sticky left offsets (must match COL_W in sales-table.tsx)
-        const skuLeft = colVis.isVisible("col-mlb") ? 150 : 0;
 
         return (
             <TableRow
@@ -151,26 +139,44 @@ export const SalesProductRow = memo(
                     dateCreated={product.dateCreated}
                     isVisible={() => true}
                     isShrunken={isMonthShrunken}
+                    showRev={colVis.isVisible("col-month-rev")}
+                    showUn={colVis.isVisible("col-month-un")}
                 />
 
                 {/* ── Média R$ (produto) ────────────────────────────────── */}
-                {colVis.isVisible("col-avg-rev") && (
-                    <TableCell className="py-2 border-l border-border text-start text-[10px] text-muted-foreground">
-                        R${" "}{product.dailyAvg45?.revenue.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                    </TableCell>
-                )}
+                {colVis.isVisible("col-avg-rev") && (() => {
+                    const avg = (avgPeriod === 45 ? product.dailyAvg45 : product.dailyAvg30);
+                    const total = avg.revenue * avgPeriod;
+                    return (
+                        <TableCell className="py-2 border-l border-border text-start text-[10px]">
+                            <div className="flex flex-col gap-0.5">
+                                <span className="text-muted-foreground">R$ {total.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                                <span className="text-[9px] text-muted-foreground/50">R$ {avg.revenue.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}/dia</span>
+                            </div>
+                        </TableCell>
+                    );
+                })()}
 
                 {/* ── Média Un (produto) ────────────────────────────────── */}
-                {colVis.isVisible("col-avg-un") && (
-                    <TableCell className="py-2 border-l border-border text-start text-[10px] text-muted-foreground">
-                        <Tooltip>
-                            <TooltipTrigger>{product.dailyAvg45.units.toFixed(1)}</TooltipTrigger>
-                            <TooltipContent>
-                                <span className="text-[10px]">Média diária (últimos 45d) deste anúncio</span>
-                            </TooltipContent>
-                        </Tooltip>
-                    </TableCell>
-                )}
+                {colVis.isVisible("col-avg-un") && (() => {
+                    const avg = (avgPeriod === 45 ? product.dailyAvg45 : product.dailyAvg30);
+                    const total = avg.units * avgPeriod;
+                    return (
+                        <TableCell className="py-2 border-l border-border text-start text-[10px]">
+                            <Tooltip>
+                                <TooltipTrigger asChild>
+                                    <div className="flex flex-col gap-0.5 cursor-default">
+                                        <span className="text-muted-foreground">{Math.round(total)}</span>
+                                        <span className="text-[9px] text-muted-foreground/50">{avg.units.toFixed(1)}/dia</span>
+                                    </div>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                    <span className="text-[10px]">Média diária (últimos {avgPeriod}d) deste anúncio</span>
+                                </TooltipContent>
+                            </Tooltip>
+                        </TableCell>
+                    );
+                })()}
 
                 {/* ── Total Receita (produto) ───────────────────────────── */}
                 {colVis.isVisible("col-total-rev") && (

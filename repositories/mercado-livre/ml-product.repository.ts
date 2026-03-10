@@ -23,6 +23,7 @@ export class MlProductRepository {
               itemRelation: product.itemRelation,
               dateCreated: product.dateCreated,
               status: product.status,
+              inventoryId: product.inventoryId,
             },
           },
           upsert: true,
@@ -48,6 +49,20 @@ export class MlProductRepository {
             },
           },
           upsert: true,
+        },
+      })),
+      { ordered: false },
+    );
+  }
+
+  async updateFlexStock(lines: { sku: string; availableQuantity: number }[]) {
+    if (!lines.length) return;
+
+    return MlProduct.bulkWrite(
+      lines.map(({ sku, availableQuantity }) => ({
+        updateMany: {
+          filter: { sku, logisticType: "xd_drop_off" },
+          update: { $set: { availableQuantity } },
         },
       })),
       { ordered: false },

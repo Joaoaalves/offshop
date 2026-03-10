@@ -8,12 +8,13 @@ import { IMonthBucket } from "@/types/sales";
 /**
  * Modos de exibição dos meses:
  *
- *  EXPANDED (isShrunken = false) — 4 colunas por mês:
+ *  EXPANDED (isShrunken = false) — até 4 colunas por mês:
  *    R$  |  Full  |  Flex  |  DropOff
  *
- *  SHRUNKEN (isShrunken = true) — 2 colunas por mês:
+ *  SHRUNKEN (isShrunken = true) — até 2 colunas por mês:
  *    R$  |  Total Un
  *
+ * showRev e showUn controlam quais sub-colunas são exibidas.
  * O número de <col> no colgroup em sales-table.tsx deve bater com isso.
  */
 export const MONTH_COLS_EXPANDED = 4;  // R$ + Full + Flex + DropOff
@@ -24,23 +25,28 @@ export function MonthCells({
     dateCreated,
     isVisible,
     isShrunken,
+    showRev = true,
+    showUn  = true,
 }: {
     resolvedMonths: IMonthBucket[];
     dateCreated: Date;
     isVisible: (key: string) => boolean;
     isShrunken: boolean;
+    showRev?: boolean;
+    showUn?: boolean;
 }) {
     return (
         <>
             {resolvedMonths.map((m, i) => {
                 const key = `month-${m.year}-${m.month}`;
                 if (!isVisible(key)) return null;
+                if (!showRev && !showUn) return null;
 
                 const monthInit = new Date(m.year, m.month - 1, 1);
                 const cDate = new Date(dateCreated);
                 const exists = existed(monthInit, cDate);
 
-                const revCell = (
+                const revCell = showRev ? (
                     <TableCell className="text-start tabular-nums text-[10px] py-3 border-l border-border">
                         {exists ? (
                             <div className="w-full flex items-center justify-between gap-x-1.5">
@@ -61,19 +67,21 @@ export function MonthCells({
                             <Minus className="w-3.5 h-3.5 text-muted-foreground/30" />
                         )}
                     </TableCell>
-                );
+                ) : null;
 
                 // ── SHRUNKEN: R$ + Total Un ─────────────────────────────
                 if (isShrunken) {
                     return (
                         <Fragment key={key}>
                             {revCell}
-                            <TableCell className="text-center tabular-nums text-[10px] py-3 border-r-2 border-border">
-                                {exists
-                                    ? <span className="text-foreground/70">{m.total.items}</span>
-                                    : <Minus className="w-3.5 h-3.5 text-muted-foreground/30 mx-auto" />
-                                }
-                            </TableCell>
+                            {showUn && (
+                                <TableCell className="text-center tabular-nums text-[10px] py-3 border-r-2 border-border">
+                                    {exists
+                                        ? <span className="text-foreground/70">{m.total.items}</span>
+                                        : <Minus className="w-3.5 h-3.5 text-muted-foreground/30 mx-auto" />
+                                    }
+                                </TableCell>
+                            )}
                         </Fragment>
                     );
                 }
@@ -82,24 +90,28 @@ export function MonthCells({
                 return (
                     <Fragment key={key}>
                         {revCell}
-                        <TableCell className="text-center tabular-nums text-[10px] py-3 border-border">
-                            {exists
-                                ? <span className="text-foreground/70">{m?.fulfillment?.items ?? 0}</span>
-                                : <Minus className="w-3.5 h-3.5 text-muted-foreground/30 mx-auto" />
-                            }
-                        </TableCell>
-                        <TableCell className="text-center tabular-nums text-[10px] py-3 border-border">
-                            {exists
-                                ? <span className="text-foreground/70">{m?.flex?.items ?? 0}</span>
-                                : <Minus className="w-3.5 h-3.5 text-muted-foreground/30 mx-auto" />
-                            }
-                        </TableCell>
-                        <TableCell className="text-center tabular-nums text-[10px] py-3 border-r-2 border-border">
-                            {exists
-                                ? <span className="text-foreground/70">{m?.dropOff?.items ?? 0}</span>
-                                : <Minus className="w-3.5 h-3.5 text-muted-foreground/30 mx-auto" />
-                            }
-                        </TableCell>
+                        {showUn && (
+                            <>
+                                <TableCell className="text-center tabular-nums text-[10px] py-3 border-border">
+                                    {exists
+                                        ? <span className="text-foreground/70">{m?.fulfillment?.items ?? 0}</span>
+                                        : <Minus className="w-3.5 h-3.5 text-muted-foreground/30 mx-auto" />
+                                    }
+                                </TableCell>
+                                <TableCell className="text-center tabular-nums text-[10px] py-3 border-border">
+                                    {exists
+                                        ? <span className="text-foreground/70">{m?.flex?.items ?? 0}</span>
+                                        : <Minus className="w-3.5 h-3.5 text-muted-foreground/30 mx-auto" />
+                                    }
+                                </TableCell>
+                                <TableCell className="text-center tabular-nums text-[10px] py-3 border-r-2 border-border">
+                                    {exists
+                                        ? <span className="text-foreground/70">{m?.dropOff?.items ?? 0}</span>
+                                        : <Minus className="w-3.5 h-3.5 text-muted-foreground/30 mx-auto" />
+                                    }
+                                </TableCell>
+                            </>
+                        )}
                     </Fragment>
                 );
             })}

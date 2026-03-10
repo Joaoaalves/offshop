@@ -38,16 +38,13 @@ const COL_W: Record<string, number> = {
     "col-conversion": 100,
 };
 
-// Widths for each month column in each mode
-//   EXPANDED  → R$(110) | Full(64) | Flex(64) | Drop(64)  = 4 cols
-//   SHRUNKEN  → R$(110) | Un(64)                          = 2 cols
-const MONTH_W_EXPANDED = [80, 50, 50, 50];
-const MONTH_W_SHRUNKEN = [80, 40];
 
 export default function SalesTable() {
     const { items } = useSalesDashboard();
     const parentRef = useRef<HTMLDivElement>(null);
     const [expandedSkus, setExpandedSkus] = useState<Set<string>>(new Set());
+    const [avgPeriod, setAvgPeriod] = useState<30 | 45>(45);
+    const toggleAvgPeriod = useCallback(() => setAvgPeriod(p => p === 45 ? 30 : 45), []);
 
     const { rows: allRows, orderedMonths } = useMemo(() => {
         if (!items) return { rows: [] as SalesRow[], orderedMonths: [] };
@@ -123,7 +120,12 @@ export default function SalesTable() {
             if (colVis.isVisible(key)) w.push(COL_W[key]);
         }
 
-        const monthColWidths = isMonthShrunken ? MONTH_W_SHRUNKEN : MONTH_W_EXPANDED;
+        const showMonthRev = colVis.isVisible("col-month-rev");
+        const showMonthUn  = colVis.isVisible("col-month-un");
+        const monthColWidths = [
+            ...(showMonthRev ? [80] : []),
+            ...(showMonthUn ? (isMonthShrunken ? [40] : [50, 50, 50]) : []),
+        ];
         for (let i = 0; i < orderedMonths.length; i++) {
             w.push(...monthColWidths);
         }
@@ -180,6 +182,8 @@ export default function SalesTable() {
                 toggleColumn={colVis.toggleColumn}
                 resetVisibility={colVis.resetVisibility}
                 totalRows={sortedRows.length}
+                avgPeriod={avgPeriod}
+                toggleAvgPeriod={toggleAvgPeriod}
             />
 
             {/* Scroll container — MUST have a fixed height for the virtualizer */}
@@ -205,6 +209,7 @@ export default function SalesTable() {
                         onSort={toggleSort}
                         isMonthShrunken={isMonthShrunken}
                         colVis={colVis}
+                        avgPeriod={avgPeriod}
                     />
 
                     <TableBody>
@@ -229,6 +234,7 @@ export default function SalesTable() {
                                         colVis={colVis}
                                         isExpanded={expandedSkus.has(row.sku)}
                                         onToggle={() => toggleExpand(row.sku)}
+                                        avgPeriod={avgPeriod}
                                         data-index={vRow.index}
                                         ref={virtualizer.measureElement}
                                     />
@@ -244,6 +250,7 @@ export default function SalesTable() {
                                     orderedMonths={orderedMonths}
                                     isMonthShrunken={isMonthShrunken}
                                     colVis={colVis}
+                                    avgPeriod={avgPeriod}
                                     data-index={vRow.index}
                                     ref={virtualizer.measureElement}
                                 />

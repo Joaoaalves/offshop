@@ -34,7 +34,7 @@ export const SalesStages = {
           {
             $addFields: {
               _isNumericCombo: {
-                $regexMatch: { input: "$sku", regex: /^[0-9]+U-/ },
+                $regexMatch: { input: "$sku", regex: /^([0-9]+)U-/ },
               },
             },
           },

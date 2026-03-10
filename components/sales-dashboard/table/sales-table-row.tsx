@@ -31,22 +31,16 @@ export const SalesTableRow = memo(
         colVis: ColVis;
         isExpanded: boolean;
         onToggle: () => void;
+        avgPeriod: 30 | 45;
         "data-index"?: number;
-    }>(function SalesTableRow({ row, index, isMonthShrunken, colVis, isExpanded, onToggle, ...rest }, ref) {
+    }>(function SalesTableRow({ row, index, isMonthShrunken, colVis, isExpanded, onToggle, avgPeriod, ...rest }, ref) {
 
-        const handleClipboard = async () => {
-            try {
-                await navigator.clipboard.writeText(row.sku);
-                toast.success("SKU copiado com sucesso!");
-            } catch {
-                toast.error("Ocorreu um erro ao copiar o SKU!");
-            }
-        };
 
         // Estoque por modalidade (derivado dos produtos)
         const fullStock = row.products?.reduce(
             (s, p) => (p.logisticType === "fulfillment" ? s + p.availableQuantity : s), 0
         ) ?? 0;
+
         const flexStock = row.products?.reduce(
             (s, p) => (p.logisticType !== "fulfillment" ? s + p.availableQuantity : s), 0
         ) ?? 0;
@@ -144,30 +138,48 @@ export const SalesTableRow = memo(
                     dateCreated={row.dateCreated}
                     isVisible={() => true}
                     isShrunken={isMonthShrunken}
+                    showRev={colVis.isVisible("col-month-rev")}
+                    showUn={colVis.isVisible("col-month-un")}
                 />
 
                 {/* ── Média R$ ────────────────────────────────────────── */}
-                {colVis.isVisible("col-avg-rev") && (
-                    <TableCell className="py-3 border-l border-border text-start text-[10px]">
-                        R${" "}{row.dailyAvg45?.revenue.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                    </TableCell>
-                )}
+                {colVis.isVisible("col-avg-rev") && (() => {
+                    const avg = (avgPeriod === 45 ? row.dailyAvg45 : row.dailyAvg30);
+                    const total = avg.revenue * avgPeriod;
+                    return (
+                        <TableCell className="py-3 border-l border-border text-start text-[10px]">
+                            <div className="flex flex-col gap-0.5">
+                                <span className="text-foreground/80">R$ {total.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                                <span className="text-[9px] text-muted-foreground/60">R$ {avg.revenue.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}/dia</span>
+                            </div>
+                        </TableCell>
+                    );
+                })()}
 
                 {/* ── Média Un ────────────────────────────────────────── */}
-                {colVis.isVisible("col-avg-un") && (
-                    <TableCell className="py-3 border-l border-border text-start text-[10px]">
-                        <Tooltip>
-                            <TooltipTrigger>{row.dailyAvg45.units.toFixed(1)}</TooltipTrigger>
-                            <TooltipContent>
-                                <div className="grid grid-cols-2 gap-x-3 text-[10px]">
-                                    <span>Full</span>  <span>{(row.dailyAvg45.units * (row.stock?.distribution?.fulfillment ?? 0)).toFixed(1)} / Dia</span>
-                                    <span>Flex</span>  <span>{(row.dailyAvg45.units * (row.stock?.distribution?.flex ?? 0)).toFixed(1)} / Dia</span>
-                                    <span>AG/Col</span><span>{(row.dailyAvg45.units * (row.stock?.distribution?.dropOff ?? 0)).toFixed(1)} / Dia</span>
-                                </div>
-                            </TooltipContent>
-                        </Tooltip>
-                    </TableCell>
-                )}
+                {colVis.isVisible("col-avg-un") && (() => {
+                    const avg = (avgPeriod === 45 ? row.dailyAvg45 : row.dailyAvg30);
+                    const total = avg.units * avgPeriod;
+                    return (
+                        <TableCell className="py-3 border-l border-border text-start text-[10px]">
+                            <Tooltip>
+                                <TooltipTrigger asChild>
+                                    <div className="flex flex-col gap-0.5 cursor-default">
+                                        <span className="text-foreground/80">{Math.round(total)}</span>
+                                        <span className="text-[9px] text-muted-foreground/60">{avg.units.toFixed(1)}/dia</span>
+                                    </div>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                    <div className="grid grid-cols-2 gap-x-3 text-[10px]">
+                                        <span>Full</span>  <span>{(avg.units * (row.stock?.distribution?.fulfillment ?? 0)).toFixed(1)} / Dia</span>
+                                        <span>Flex</span>  <span>{(avg.units * (row.stock?.distribution?.flex ?? 0)).toFixed(1)} / Dia</span>
+                                        <span>AG/Col</span><span>{(avg.units * (row.stock?.distribution?.dropOff ?? 0)).toFixed(1)} / Dia</span>
+                                    </div>
+                                </TooltipContent>
+                            </Tooltip>
+                        </TableCell>
+                    );
+                })()}
 
                 {/* ── Total Receita ────────────────────────────────────── */}
                 {colVis.isVisible("col-total-rev") && (

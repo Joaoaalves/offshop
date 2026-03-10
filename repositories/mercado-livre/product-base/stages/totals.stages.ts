@@ -1,8 +1,8 @@
 import { PipelineStage } from "mongoose";
 
 export const TotalsStages = {
-  lookup(): PipelineStage.Lookup {
-    return {
+  lookup(): PipelineStage.Lookup[] {
+    const bucketLookup = (amount: number, as: string): PipelineStage.Lookup => ({
       $lookup: {
         from: "salesbuckets",
         let: { pid: "$productId" },
@@ -19,7 +19,7 @@ export const TotalsStages = {
                         $dateSubtract: {
                           startDate: "$$NOW",
                           unit: "day",
-                          amount: 45,
+                          amount,
                         },
                       },
                     ],
@@ -37,9 +37,11 @@ export const TotalsStages = {
             },
           },
         ],
-        as: "_daily45",
+        as,
       },
-    };
+    });
+
+    return [bucketLookup(45, "_daily45"), bucketLookup(30, "_daily30")];
   },
 
   compute(): PipelineStage.AddFields {
@@ -66,6 +68,17 @@ export const TotalsStages = {
               revenue: { $divide: [{ $sum: "$_daily45.revenue" }, 45] },
               units: { $divide: [{ $sum: "$_daily45.units" }, 45] },
               activeDays: { $size: "$_daily45" },
+            },
+            else: { revenue: 0, units: 0, activeDays: 0 },
+          },
+        },
+        dailyAvg30: {
+          $cond: {
+            if: { $gt: [{ $size: "$_daily30" }, 0] },
+            then: {
+              revenue: { $divide: [{ $sum: "$_daily30.revenue" }, 30] },
+              units: { $divide: [{ $sum: "$_daily30.units" }, 30] },
+              activeDays: { $size: "$_daily30" },
             },
             else: { revenue: 0, units: 0, activeDays: 0 },
           },

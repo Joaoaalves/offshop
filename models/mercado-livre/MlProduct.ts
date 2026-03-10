@@ -15,6 +15,7 @@ const MlProductSchema = new Schema<IMlProduct>({
   price: Number,
   catalogListing: Boolean,
   availableQuantity: Number,
+  inventoryId: String,
   logisticType: String,
   itemRelation: String,
   dateCreated: Date,

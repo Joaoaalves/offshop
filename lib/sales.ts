@@ -2,7 +2,7 @@ import { AbcCurve, Momentum, Trend } from "@/types/enums";
 import { SalesRow } from "@/types/sales";
 
 export const trendGrowing = (row: SalesRow) => {
-  if (detectStockBurn(row) || (!row.isNew && row.totals.units < 20))
+  if (detectStockBurn(row) || (!row.isNew && row.totals.units < 15))
     return false;
 
   return [Trend.GROWING, Trend.SOARED].includes(row.trend);

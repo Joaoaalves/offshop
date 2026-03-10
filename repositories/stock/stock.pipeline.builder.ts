@@ -13,7 +13,7 @@ export class StockPipelineBuilder {
     this.stages.push(
       BaseStages.matchValidProducts(), // Only valid SKU
       ...BaseStages.addBaseSku(), // Calculate baseSku
-      BaseStages.groupByBaseSku(), // Group using baseSKU
+      ...BaseStages.groupByBaseSku(), // Group using baseSKU (with inventory dedup)
     );
 
     return this;

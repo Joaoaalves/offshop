@@ -1,6 +1,7 @@
 import { SalesRow } from "@/types/sales";
 import { SortState } from "@/hooks/tables/use-table-controls";
 
+// Campos estáticos + dinâmicos de mês: "month-rev-YYYY-M" | "month-un-YYYY-M"
 export type SortField =
   | "sku"
   | "abcCurve"
@@ -10,64 +11,22 @@ export type SortField =
   | "totalRevenue"
   | "totalUnits"
   | "conversion"
-  | "availableQuantity";
+  | "availableQuantity"
+  | (string & {});
 
 export const COLUMN_DEFS = [
-  { key: "col-sku", label: "SKU", group: "Produto", defaultVisible: true },
-  {
-    key: "col-abc",
-    label: "Curva ABC",
-    group: "Produto",
-    defaultVisible: true,
-  },
-  {
-    key: "col-status",
-    label: "Status",
-    group: "Produto",
-    defaultVisible: true,
-  },
-  {
-    key: "col-avg-rev",
-    label: "Média R$",
-    group: "Média Diária",
-    defaultVisible: true,
-  },
-  {
-    key: "col-avg-un",
-    label: "Média Un",
-    group: "Média Diária",
-    defaultVisible: true,
-  },
-  {
-    key: "col-total-rev",
-    label: "Total Receita",
-    group: "Total (120d)",
-    defaultVisible: true,
-  },
-  {
-    key: "col-total-un",
-    label: "Total Unidades",
-    group: "Total (120d)",
-    defaultVisible: true,
-  },
-  {
-    key: "col-stock-full",
-    label: "Estoque Full",
-    group: "Estoque",
-    defaultVisible: true,
-  },
-  {
-    key: "col-stock-flex",
-    label: "Estoque Flex",
-    group: "Estoque",
-    defaultVisible: true,
-  },
-  {
-    key: "col-conversion",
-    label: "Conversão",
-    group: "Conversão",
-    defaultVisible: true,
-  },
+  { key: "col-sku",        label: "SKU",           group: "Produto",      defaultVisible: true },
+  { key: "col-abc",        label: "Curva ABC",      group: "Produto",      defaultVisible: true },
+  { key: "col-status",     label: "Status",         group: "Produto",      defaultVisible: true },
+  { key: "col-month-rev",  label: "Receita (R$)",   group: "Meses",        defaultVisible: true },
+  { key: "col-month-un",   label: "Unidades",       group: "Meses",        defaultVisible: true },
+  { key: "col-avg-rev",    label: "Média R$",       group: "Média Diária", defaultVisible: true },
+  { key: "col-avg-un",     label: "Média Un",       group: "Média Diária", defaultVisible: true },
+  { key: "col-total-rev",  label: "Total Receita",  group: "Total (120d)", defaultVisible: true },
+  { key: "col-total-un",   label: "Total Unidades", group: "Total (120d)", defaultVisible: true },
+  { key: "col-stock-full", label: "Estoque Full",   group: "Estoque",      defaultVisible: true },
+  { key: "col-stock-flex", label: "Estoque Flex",   group: "Estoque",      defaultVisible: true },
+  { key: "col-conversion", label: "Conversão",      group: "Conversão",    defaultVisible: true },
 ];
 
 export function sortSalesRows(
@@ -77,6 +36,21 @@ export function sortSalesRows(
   if (!sort.field) return rows;
   const { field, dir } = sort;
   const mul = dir === "asc" ? 1 : -1;
+
+  // Sort dinâmico por mês: "month-rev-YYYY-M" ou "month-un-YYYY-M"
+  if (field.startsWith("month-")) {
+    const parts = field.split("-");
+    const type  = parts[1]; // "rev" | "un"
+    const year  = Number(parts[2]);
+    const month = Number(parts[3]);
+    return [...rows].sort((a, b) => {
+      const am = a.resolvedMonths.find(m => m.year === year && m.month === month);
+      const bm = b.resolvedMonths.find(m => m.year === year && m.month === month);
+      const av = type === "rev" ? (am?.total.revenue ?? 0) : (am?.total.items ?? 0);
+      const bv = type === "rev" ? (bm?.total.revenue ?? 0) : (bm?.total.items ?? 0);
+      return (av - bv) * mul;
+    });
+  }
 
   return [...rows].sort((a, b) => {
     let av: number | string = 0;

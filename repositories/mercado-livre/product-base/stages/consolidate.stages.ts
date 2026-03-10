@@ -22,6 +22,7 @@ export const ConsolidateStages = {
         months: 1,
         totals: 1,
         dailyAvg45: 1,
+        dailyAvg30: 1,
       },
     };
   },
