@@ -7,6 +7,12 @@ export interface ISelfProduct {
 
   minStockDays: number;
 
+  stock?: {
+    storage: number;  // Galpão
+    incoming: number; // A Caminho
+    damage: number;   // Avaria
+  };
+
   createdAt: Date;
 }
 

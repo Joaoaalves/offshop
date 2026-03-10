@@ -47,7 +47,7 @@ export const ConsolidateStages = {
           },
         },
 
-        flex: {
+        storage: {
           stock: "$flexStock",
           replenishment: {
             coverage: "$flexCoverageDays",
@@ -55,6 +55,9 @@ export const ConsolidateStages = {
             suggestedUnits: "$flexsuggestedUnits",
           },
         },
+
+        incoming: 1,
+        damage:   1,
 
         avgDailySales: 1,
 

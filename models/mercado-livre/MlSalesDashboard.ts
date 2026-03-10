@@ -63,7 +63,6 @@ const EmbeddedProductSchema = new Schema<IMlSalesDashboardProduct>(
     catalogListing: Boolean,
     stock: {
       full: { type: Number, default: 0 },
-      flex: { type: Number, default: 0 },
     },
     isNew: { type: Boolean, default: false },
     months: { type: [MonthBucketSchema], default: [] },

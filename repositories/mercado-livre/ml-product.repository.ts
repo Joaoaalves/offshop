@@ -58,20 +58,6 @@ export class MlProductRepository {
     );
   }
 
-  async updateFlexStock(lines: { sku: string; availableQuantity: number }[]) {
-    if (!lines.length) return;
-
-    return MlProduct.bulkWrite(
-      lines.map(({ sku, availableQuantity }) => ({
-        updateMany: {
-          filter: { sku },
-          update: { $set: { "stock.flex": availableQuantity } },
-        },
-      })),
-      { ordered: false },
-    );
-  }
-
   async get(productId?: string) {
     return MlProduct.find(productId ? { productId } : {});
   }

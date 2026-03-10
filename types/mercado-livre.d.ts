@@ -17,7 +17,6 @@ export interface IMlProduct extends IExternalProduct<
   inventoryId?: string;
   stock: {
     full: number;
-    flex: number;
   };
 }
 

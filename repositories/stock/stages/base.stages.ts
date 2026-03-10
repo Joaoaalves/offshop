@@ -82,12 +82,12 @@ export const BaseStages = {
           baseSku: { $first: "$baseSku" },
           logisticType: { $first: "$logisticType" },
           _stockFull: { $first: "$stock.full" },
-          _stockFlex: { $first: "$stock.flex" },
           _comboMultiplier: { $first: "$_comboMultiplier" },
         },
       },
 
-      // 3. Agrupa por baseSku somando o estoque já deduplicado
+      // 3. Agrupa por baseSku somando o estoque de fulfillment (ML)
+      // flexStock (Galpão) será injetado por SupplierStages.lookup() via SelfProduct
       {
         $group: {
           _id: "$baseSku",
@@ -96,14 +96,6 @@ export const BaseStages = {
             $sum: {
               $multiply: [
                 { $ifNull: ["$_stockFull", 0] },
-                "$_comboMultiplier",
-              ],
-            },
-          },
-          flexStock: {
-            $sum: {
-              $multiply: [
-                { $ifNull: ["$_stockFlex", 0] },
                 "$_comboMultiplier",
               ],
             },

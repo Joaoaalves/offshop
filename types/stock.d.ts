@@ -31,7 +31,10 @@ export interface IStock {
   months: IMonthBucketStock[];
 
   fulfillment: IStockModalityMetrics;
-  flex: IStockModalityMetrics;
+  storage: IStockModalityMetrics; // Galpão (physical warehouse)
+
+  incoming: number; // A Caminho (units on order)
+  damage: number;   // Avaria (damaged units)
 
   avgDailySales: number;
   distribution: ISalesDistribution;

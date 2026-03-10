@@ -25,7 +25,7 @@ export const COLUMN_DEFS = [
   { key: "col-total-rev",  label: "Total Receita",  group: "Total (120d)", defaultVisible: true },
   { key: "col-total-un",   label: "Total Unidades", group: "Total (120d)", defaultVisible: true },
   { key: "col-stock-full", label: "Estoque Full",   group: "Estoque",      defaultVisible: true },
-  { key: "col-stock-flex", label: "Estoque Flex",   group: "Estoque",      defaultVisible: true },
+  { key: "col-stock-flex", label: "Estoque Galpão", group: "Estoque",      defaultVisible: true },
   { key: "col-conversion", label: "Conversão",      group: "Conversão",    defaultVisible: true },
 ];
 

@@ -20,7 +20,6 @@ const MlProductSchema = new Schema<IMlProduct>({
   dateCreated: Date,
   stock: {
     full: { type: Number, default: 0 },
-    flex: { type: Number, default: 0 },
   },
   status: {
     type: String,

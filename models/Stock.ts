@@ -49,7 +49,10 @@ export const StockSchemaDefinition = {
 
   months: [StockMonthBucketSchema],
   fulfillment: StockModalityMetricsSchema,
-  flex: StockModalityMetricsSchema,
+  storage: StockModalityMetricsSchema,  // Galpão
+
+  incoming: { type: Number, default: 0 }, // A Caminho
+  damage:   { type: Number, default: 0 }, // Avaria
 
   avgDailySales: { type: Number, default: 0 },
 

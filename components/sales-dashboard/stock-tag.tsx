@@ -7,9 +7,10 @@ import { detectAbruptDrop, isDead } from "@/lib/sales-utils";
 
 export default function StockTag({ product }: { product: ISalesDashboardItem }) {
     const hasFulfillment = product.products.some(p => p.logisticType === "fulfillment");
-    const totalQty = product.products.reduce((s, p) => s + (p.stock?.full ?? 0) + (p.stock?.flex ?? 0), 0);
+    const totalFullStock = product.products.reduce((s, p) => s + (p.stock?.full ?? 0), 0);
+    const totalStorageStock = product.stock?.storage?.stock ?? 0;
 
-    if (product.status !== "active" && totalQty === 0)
+    if (product.status !== "active" && (totalFullStock + totalStorageStock) === 0)
         return;
 
     const dead = isDead(product);

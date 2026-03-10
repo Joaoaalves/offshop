@@ -13,6 +13,12 @@ const SelfProductSchema = new Schema<ISelfProduct>({
 
   minStockDays: { type: Number, default: 30 },
 
+  stock: {
+    storage:  { type: Number, default: 0 }, // Galpão
+    incoming: { type: Number, default: 0 }, // A Caminho
+    damage:   { type: Number, default: 0 }, // Avaria
+  },
+
   createdAt: { type: Date, default: Date.now },
 });
 

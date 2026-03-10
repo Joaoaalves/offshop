@@ -206,10 +206,11 @@ export const SalesProductRow = memo(
                     </TableCell>
                 )}
 
-                {/* ── Estoque Flex (produto) ────────────────────────────── */}
+                {/* ── Estoque Galpão (produto) ─────────────────────────── */}
+                {/* Storage é por SKU, não por anúncio individual */}
                 {colVis.isVisible("col-stock-flex") && (
                     <TableCell className="py-2 border-r-2 border-border text-[10px] text-muted-foreground">
-                        {(product.stock?.flex ?? 0) > 0 ? product.stock.flex : "—"}
+                        —
                     </TableCell>
                 )}
 

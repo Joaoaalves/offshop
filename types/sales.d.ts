@@ -54,7 +54,6 @@ export interface IMlSalesDashboardProduct {
   itemRelation?: string;
   stock: {
     full: number;
-    flex: number;
   };
   isNew: boolean;
   months: IMonthBucket[];

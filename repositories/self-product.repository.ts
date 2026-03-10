@@ -21,4 +21,24 @@ export class SelfProductRepository {
   delete(prodId: string) {
     return SelfProduct.findByIdAndDelete(prodId);
   }
+
+  updateStock(lines: { sku: string; storage: number; incoming: number; damage: number }[]) {
+    if (!lines.length) return;
+
+    return SelfProduct.bulkWrite(
+      lines.map(({ sku, storage, incoming, damage }) => ({
+        updateOne: {
+          filter: { baseSku: sku },
+          update: {
+            $set: {
+              "stock.storage":  storage,
+              "stock.incoming": incoming,
+              "stock.damage":   damage,
+            },
+          },
+        },
+      })),
+      { ordered: false },
+    );
+  }
 }
