@@ -57,11 +57,18 @@ export const SalesProductRow = memo(
                             <div className="flex flex-col min-w-0">
                                 <Tooltip>
                                     <TooltipTrigger onClick={handleNavigate} asChild>
-                                        <span
-                                            className="text-[10px] font-semibold cursor-pointer text-primary hover:underline underline-offset-2 whitespace-nowrap"
-                                        >
-                                            {product.productId}
-                                        </span>
+                                        <div className="flex flex-col">
+                                            <span
+                                                className="text-[10px] font-semibold cursor-pointer text-foreground/80 hover:underline underline-offset-2 whitespace-nowrap"
+                                            >
+                                                {product.sku}
+                                            </span>
+                                            <span
+                                                className="text-[10px] font-semibold cursor-pointer text-primary hover:underline underline-offset-2 whitespace-nowrap"
+                                            >
+                                                {product.productId}
+                                            </span>
+                                        </div>
                                     </TooltipTrigger>
                                     <TooltipContent>{product.name}</TooltipContent>
                                 </Tooltip>
@@ -195,14 +202,14 @@ export const SalesProductRow = memo(
                 {/* ── Estoque Full (produto) ────────────────────────────── */}
                 {colVis.isVisible("col-stock-full") && (
                     <TableCell className="py-2 text-[10px] text-muted-foreground">
-                        {product.logisticType === "fulfillment" ? product.availableQuantity : "—"}
+                        {(product.stock?.full ?? 0) > 0 ? product.stock.full : "—"}
                     </TableCell>
                 )}
 
                 {/* ── Estoque Flex (produto) ────────────────────────────── */}
                 {colVis.isVisible("col-stock-flex") && (
                     <TableCell className="py-2 border-r-2 border-border text-[10px] text-muted-foreground">
-                        {product.logisticType !== "fulfillment" ? product.availableQuantity : "—"}
+                        {(product.stock?.flex ?? 0) > 0 ? product.stock.flex : "—"}
                     </TableCell>
                 )}
 

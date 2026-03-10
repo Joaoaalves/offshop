@@ -24,7 +24,6 @@ export interface IExternalProduct<
   unitsPerPack: number;
   price: number;
 
-  availableQuantity: number;
   logisticType: TLogistic;
 
   dateCreated: Date;

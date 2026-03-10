@@ -45,7 +45,10 @@ const MlProductBaseCacheSchema = new Schema<IMlProductBase>(
     dateCreated: Date,
     logisticType: String,
     isNew: Boolean,
-    availableQuantity: Number,
+    stock: {
+      full: { type: Number, default: 0 },
+      flex: { type: Number, default: 0 },
+    },
     months: { type: [MonthBucketSchema], default: [] },
     dailyAvg45: {
       revenue: { type: Number, default: 0 },

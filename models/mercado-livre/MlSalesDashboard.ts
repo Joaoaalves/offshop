@@ -61,7 +61,10 @@ const EmbeddedProductSchema = new Schema<IMlSalesDashboardProduct>(
     logisticType: String,
     itemRelation: String,
     catalogListing: Boolean,
-    availableQuantity: { type: Number, default: 0 },
+    stock: {
+      full: { type: Number, default: 0 },
+      flex: { type: Number, default: 0 },
+    },
     isNew: { type: Boolean, default: false },
     months: { type: [MonthBucketSchema], default: [] },
     totals: {

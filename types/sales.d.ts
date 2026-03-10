@@ -52,7 +52,10 @@ export interface IMlSalesDashboardProduct {
   logisticType: string;
   catalogListing: boolean;
   itemRelation?: string;
-  availableQuantity: number;
+  stock: {
+    full: number;
+    flex: number;
+  };
   isNew: boolean;
   months: IMonthBucket[];
   totals: {
@@ -96,7 +99,7 @@ export interface ISalesDashboardItem {
   status: string;            // "active" se qualquer produto está ativo
   logisticType: string;      // "fulfillment" se qualquer produto é Full
   isNew: boolean;            // true se algum produto é novo
-  availableQuantity: number; // soma de todos os produtos
+  availableQuantity: number; // total stock (full + flex) de todos os produtos
 
   // Valores agregados (soma de todos os produtos do SKU)
   months: IMonthBucket[];

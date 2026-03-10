@@ -9,7 +9,7 @@ export const BaseProjection = {
       status: 1,
       logisticType: 1,
       isNew: 1,
-      availableQuantity: 1,
+      stock: 1,
       months: 1,
       totals: 1,
       dailyAvg45: 1,

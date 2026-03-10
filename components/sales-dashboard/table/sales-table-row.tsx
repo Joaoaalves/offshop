@@ -34,17 +34,6 @@ export const SalesTableRow = memo(
         avgPeriod: 30 | 45;
         "data-index"?: number;
     }>(function SalesTableRow({ row, index, isMonthShrunken, colVis, isExpanded, onToggle, avgPeriod, ...rest }, ref) {
-
-
-        // Estoque por modalidade (derivado dos produtos)
-        const fullStock = row.products?.reduce(
-            (s, p) => (p.logisticType === "fulfillment" ? s + p.availableQuantity : s), 0
-        ) ?? 0;
-
-        const flexStock = row.products?.reduce(
-            (s, p) => (p.logisticType !== "fulfillment" ? s + p.availableQuantity : s), 0
-        ) ?? 0;
-
         const canExpand = (row.products?.length ?? 0) > 1;
 
 
@@ -198,14 +187,14 @@ export const SalesTableRow = memo(
                 {/* ── Estoque Full ─────────────────────────────────────── */}
                 {colVis.isVisible("col-stock-full") && (
                     <TableCell className="py-3 text-[10px]">
-                        {fullStock > 0 ? fullStock : "—"}
+                        {row.stock?.fulfillment.stock ?? 0} un
                     </TableCell>
                 )}
 
                 {/* ── Estoque Flex ─────────────────────────────────────── */}
                 {colVis.isVisible("col-stock-flex") && (
                     <TableCell className="py-3 border-r-2 border-border text-[10px]">
-                        {flexStock > 0 ? flexStock : "—"}
+                        {row?.stock?.flex.stock ?? 0} un
                     </TableCell>
                 )}
 

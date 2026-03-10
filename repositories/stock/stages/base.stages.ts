@@ -63,10 +63,10 @@ export const BaseStages = {
 
   groupByBaseSku(): PipelineStage[] {
     return [
-      // 1. Chave de deduplicação: usa inventoryId quando disponível, senão productId
+      // 1. Chave de deduplicação: usa inventoryId quando disponível, senão sku
       {
         $addFields: {
-          _dedupeKey: { $ifNull: ["$inventoryId", "$productId"] },
+          _dedupeKey: { $ifNull: ["$sku", "$inventoryId"] },
         },
       },
 
@@ -81,7 +81,8 @@ export const BaseStages = {
           _mlbIds: { $addToSet: "$productId" },
           baseSku: { $first: "$baseSku" },
           logisticType: { $first: "$logisticType" },
-          availableQuantity: { $first: "$availableQuantity" },
+          _stockFull: { $first: "$stock.full" },
+          _stockFlex: { $first: "$stock.flex" },
           _comboMultiplier: { $first: "$_comboMultiplier" },
         },
       },
@@ -93,29 +94,17 @@ export const BaseStages = {
           _mlbIdGroups: { $push: "$_mlbIds" },
           fullStock: {
             $sum: {
-              $cond: [
-                { $eq: ["$logisticType", "fulfillment"] },
-                {
-                  $multiply: [
-                    { $ifNull: ["$availableQuantity", 0] },
-                    "$_comboMultiplier",
-                  ],
-                },
-                0,
+              $multiply: [
+                { $ifNull: ["$_stockFull", 0] },
+                "$_comboMultiplier",
               ],
             },
           },
           flexStock: {
             $sum: {
-              $cond: [
-                { $eq: ["$logisticType", "xd_drop_off"] },
-                {
-                  $multiply: [
-                    { $ifNull: ["$availableQuantity", 0] },
-                    "$_comboMultiplier",
-                  ],
-                },
-                0,
+              $multiply: [
+                { $ifNull: ["$_stockFlex", 0] },
+                "$_comboMultiplier",
               ],
             },
           },

@@ -59,7 +59,8 @@ export const GroupBySkuStages = {
         _fulfillmentCount: { $sum: { $cond: [{ $eq: ["$logisticType", "fulfillment"] }, 1, 0] } },
         _firstStatus: { $first: "$status" },
         _firstLogisticType: { $first: "$logisticType" },
-        availableQuantity: { $sum: "$availableQuantity" },
+        _totalStockFull: { $sum: "$stock.full" },
+        _totalStockFlex: { $sum: "$stock.flex" },
 
         // dailyAvg45 e dailyAvg30 agregados
         _dailyAvg45Revenue: { $sum: "$dailyAvg45.revenue" },
@@ -85,7 +86,7 @@ export const GroupBySkuStages = {
             logisticType: "$logisticType",
             catalogListing: "$catalogListing",
             itemRelation: "$itemRelation",
-            availableQuantity: "$availableQuantity",
+            stock: "$stock",
             isNew: "$isNew",
             months: "$months",
             totals: "$totals",
@@ -171,6 +172,8 @@ export const GroupBySkuStages = {
         // Queda de conversão: true se qualquer produto caiu; pct = média ponderada
         conversionDropped: { $gt: ["$_convDropCount", 0] },
         conversionDropPct: { $cond: [{ $gt: ["$totalRevenue", 0] }, { $divide: ["$_wConvDropPct", "$totalRevenue"] }, 0] },
+        // Estoque total do SKU (full + flex) — usado para ordenação
+        availableQuantity: { $add: ["$_totalStockFull", "$_totalStockFlex"] },
         _flatMonths: {
           $reduce: {
             input: "$_allMonths",

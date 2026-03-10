@@ -14,11 +14,14 @@ const MlProductSchema = new Schema<IMlProduct>({
   link: String,
   price: Number,
   catalogListing: Boolean,
-  availableQuantity: Number,
   inventoryId: String,
   logisticType: String,
   itemRelation: String,
   dateCreated: Date,
+  stock: {
+    full: { type: Number, default: 0 },
+    flex: { type: Number, default: 0 },
+  },
   status: {
     type: String,
     required: true,

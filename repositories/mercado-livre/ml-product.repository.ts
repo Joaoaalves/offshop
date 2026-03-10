@@ -5,9 +5,7 @@ export class MlProductRepository {
   async upsertMany(products: any[]) {
     if (!products.length) return;
 
-    const incomingIds = products.map((p) => p.productId);
-
-    await MlProduct.bulkWrite(
+    return MlProduct.bulkWrite(
       products.map((product) => ({
         updateOne: {
           filter: { productId: product.productId },
@@ -20,7 +18,10 @@ export class MlProductRepository {
               link: product.permalink,
               price: product.price,
               catalogListing: product.catalogListing,
-              availableQuantity: product.availableQuantity,
+              "stock.full":
+                product.logisticType === "fulfillment"
+                  ? (product.availableQuantity ?? 0)
+                  : 0,
               logisticType: product.logisticType,
               itemRelation: product.itemRelation,
               dateCreated: product.dateCreated,
@@ -33,8 +34,6 @@ export class MlProductRepository {
       })),
       { ordered: false },
     );
-
-    await MlProduct.deleteMany({ productId: { $nin: incomingIds } });
   }
 
   async insertManyViews(views: any[]) {
@@ -65,8 +64,8 @@ export class MlProductRepository {
     return MlProduct.bulkWrite(
       lines.map(({ sku, availableQuantity }) => ({
         updateMany: {
-          filter: { sku, logisticType: "xd_drop_off" },
-          update: { $set: { availableQuantity } },
+          filter: { sku },
+          update: { $set: { "stock.flex": availableQuantity } },
         },
       })),
       { ordered: false },

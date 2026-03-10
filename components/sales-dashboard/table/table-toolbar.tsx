@@ -183,7 +183,7 @@ function sortFieldLabel(field: SortField): string {
         totalRevenue: "Receita Total",
         totalUnits: "Unidades Total",
         conversion: "Conversão",
-        availableQuantity: "Estoque Full",
+        availableQuantity: "Estoque Total",
     };
     return map[field] ?? field;
 }
