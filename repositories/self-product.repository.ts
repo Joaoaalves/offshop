@@ -32,6 +32,11 @@ export class SelfProductRepository {
     return SelfProduct.findByIdAndDelete(prodId);
   }
 
+  bulkCreate(data: any[]) {
+    if (!data.length) return Promise.resolve([]);
+    return SelfProduct.insertMany(data, { ordered: false });
+  }
+
   updateStock(
     lines: { sku: string; storage: number; incoming: number; damage: number }[],
   ) {
