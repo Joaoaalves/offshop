@@ -1,4 +1,4 @@
-import { IStock } from "./stock";
+import { IStock, IStockModalityMetrics } from "./stock";
 import { IRegression } from "./trend";
 import { AbcCurve, Momentum, Trend } from "./enums";
 
@@ -54,6 +54,7 @@ export interface IMlSalesDashboardProduct {
   itemRelation?: string;
   stock: {
     full: number;
+    flex: number;
   };
   isNew: boolean;
   months: IMonthBucket[];
@@ -95,9 +96,9 @@ export interface ISalesDashboardItem {
   dateCreated: Date;
 
   // Campos representativos (derivados dos produtos do SKU)
-  status: string;            // "active" se qualquer produto está ativo
-  logisticType: string;      // "fulfillment" se qualquer produto é Full
-  isNew: boolean;            // true se algum produto é novo
+  status: string; // "active" se qualquer produto está ativo
+  logisticType: string; // "fulfillment" se qualquer produto é Full
+  isNew: boolean; // true se algum produto é novo
   availableQuantity: number; // total stock (full + flex) de todos os produtos
 
   // Valores agregados (soma de todos os produtos do SKU)

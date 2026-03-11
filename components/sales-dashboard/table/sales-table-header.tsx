@@ -194,11 +194,11 @@ export default function SalesDashboardTableHeader({
                 {showTotalUn && <SortableHead field="totalUnits" sort={sort} onSort={onSort} rowSpan={2}
                     className="bg-violet-800 text-violet-100 border-r-2 border-violet-700">Un</SortableHead>}
                 {showStockFull && <SortableHead field="availableQuantity" sort={sort} onSort={onSort} rowSpan={2}
-                    className="bg-sky-600 text-white border-x border-sky-500">Full</SortableHead>}
+                    className="text-left bg-sky-600 text-white font-medium text-[9px] uppercase border-r-2 border-sky-500">Full</SortableHead>}
                 {showStockFlex && (
                     <TableHead rowSpan={2}
-                        className="text-center bg-sky-600 text-white font-medium text-[11px] uppercase tracking-wider px-3 py-2 border-r-2 border-sky-500">
-                        Flex
+                        className="text-left bg-sky-600 text-white font-medium text-[9px] uppercase border-r-2 border-sky-500">
+                        Galpão
                     </TableHead>
                 )}
                 {showConv && (

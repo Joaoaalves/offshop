@@ -22,7 +22,9 @@ export class SelfProductRepository {
     return SelfProduct.findByIdAndDelete(prodId);
   }
 
-  updateStock(lines: { sku: string; storage: number; incoming: number; damage: number }[]) {
+  updateStock(
+    lines: { sku: string; storage: number; incoming: number; damage: number }[],
+  ) {
     if (!lines.length) return;
 
     return SelfProduct.bulkWrite(
@@ -31,9 +33,9 @@ export class SelfProductRepository {
           filter: { baseSku: sku },
           update: {
             $set: {
-              "stock.storage":  storage,
-              "stock.incoming": incoming,
-              "stock.damage":   damage,
+              "stock.storage": Math.max(0, storage),
+              "stock.incoming": Math.max(0, incoming),
+              "stock.damage": Math.max(0, damage),
             },
           },
         },

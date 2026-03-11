@@ -40,6 +40,14 @@ export const StockProjection = {
               },
             },
 
+            incoming: {
+              $ifNull: ["$_stock.incoming", 0],
+            },
+
+            damage: {
+              $ifNull: ["$_stock.damage", 0],
+            },
+
             // Métricas gerais
             avgDailySales: { $ifNull: ["$_stock.avgDailySales", 0] },
 

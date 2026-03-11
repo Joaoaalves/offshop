@@ -94,16 +94,6 @@ export const SalesProductRow = memo(
                     </TableCell>
                 )}
 
-                {/* ── SKU do produto ───────────────────────────────────── */}
-                {/* {colVis.isVisible("col-sku") && (
-                    <TableCell
-                        className="sticky z-10 text-start py-2 bg-muted/30 border-r-2 border-border/40 shadow-[2px_0_6px_rgba(0,0,0,0.08)]"
-                        style={{ left: skuLeft }}
-                        onClick={handleClipboard}
-                    >
-
-                    </TableCell>
-                )} */}
 
                 {/* ── Curva ABC ───────────────────────────────────────── */}
                 {colVis.isVisible("col-abc") && (
@@ -207,10 +197,9 @@ export const SalesProductRow = memo(
                 )}
 
                 {/* ── Estoque Galpão (produto) ─────────────────────────── */}
-                {/* Storage é por SKU, não por anúncio individual */}
                 {colVis.isVisible("col-stock-flex") && (
                     <TableCell className="py-2 border-r-2 border-border text-[10px] text-muted-foreground">
-                        —
+                        {(product.stock?.flex ?? 0) > 0 ? product.stock.flex : "—"}
                     </TableCell>
                 )}
 
