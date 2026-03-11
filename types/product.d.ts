@@ -1,9 +1,32 @@
 import { ISupplier } from "./supplier";
 
 export interface ISelfProduct {
-  name: string;
+  // Informações básicas
   baseSku: string;
+  name: string;
+  imageUrl?: string;
+  manufacturerCode?: string;
+  ncm?: string;             // Código Mercosul — 8 dígitos
+  unitsPerBox?: number;
   supplier: ISupplier;
+
+  // Preços e impostos
+  tablePrice?: number;       // Preço de tabela (base)
+  icms?: number;             // ICMS em %
+  ipi?: number;              // IPI em %
+  difal?: number;            // DIFAL em %
+  storageCost?: number;      // Custo de armazenamento (fixo por ora)
+  // Calculados (não persistidos)
+  priceWithTaxes?: number;   // tablePrice * (1 + icms/100 + ipi/100 + difal/100)
+  unitPrice?: number;        // priceWithTaxes / unitsPerBox
+
+  // Dimensões e peso
+  lengthCm?: number;
+  widthCm?: number;
+  heightCm?: number;
+  volumeCm3?: number;
+  weightKg?: number;
+  chargeableWeightKg?: number;
 
   minStockDays: number;
 

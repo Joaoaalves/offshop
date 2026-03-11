@@ -2,14 +2,34 @@ import { ISelfProduct } from "@/types/product";
 import { model, models, Schema } from "mongoose";
 
 const SelfProductSchema = new Schema<ISelfProduct>({
-  name: { type: String, required: true },
-  baseSku: { type: String, required: true, unique: true },
+  // Informações básicas
+  baseSku:          { type: String, required: true, unique: true },
+  name:             { type: String, required: true },
+  imageUrl:         { type: String },
+  manufacturerCode: { type: String },
+  ncm:              { type: String, match: /^\d{8}$/ }, // 8 dígitos
+  unitsPerBox:      { type: Number },
 
   supplier: {
     type: Schema.Types.ObjectId,
     ref: "Supplier",
     required: true,
   },
+
+  // Preços e impostos
+  tablePrice:  { type: Number },
+  icms:        { type: Number, default: 0 },
+  ipi:         { type: Number, default: 0 },
+  difal:       { type: Number, default: 0 },
+  storageCost: { type: Number, default: 0 },
+
+  // Dimensões e peso
+  lengthCm:           { type: Number },
+  widthCm:            { type: Number },
+  heightCm:           { type: Number },
+  volumeCm3:          { type: Number },
+  weightKg:           { type: Number },
+  chargeableWeightKg: { type: Number },
 
   minStockDays: { type: Number, default: 30 },
 

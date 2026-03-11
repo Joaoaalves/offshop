@@ -1,15 +1,25 @@
 import "@/models/Supplier";
 import { SelfProduct } from "@/models/SelfProduct";
+import { ISelfProduct } from "@/types/product";
+
+function withCalculatedFields<T extends Partial<ISelfProduct>>(product: T): T {
+  const { tablePrice, icms = 0, ipi = 0, difal = 0, unitsPerBox } = product;
+  if (tablePrice == null) return product;
+  const priceWithTaxes = tablePrice * (1 + (icms + ipi + difal) / 100);
+  const unitPrice = unitsPerBox ? priceWithTaxes / unitsPerBox : undefined;
+  return { ...product, priceWithTaxes, unitPrice };
+}
 
 export class SelfProductRepository {
   create(data: any) {
     return SelfProduct.create(data);
   }
 
-  findAll(populate: boolean = true) {
-    if (populate) return SelfProduct.find().populate("supplier").lean();
-
-    return SelfProduct.find().lean();
+  async findAll(populate: boolean = true) {
+    const docs = populate
+      ? await SelfProduct.find().populate("supplier").lean()
+      : await SelfProduct.find().lean();
+    return docs.map(withCalculatedFields);
   }
 
   update(prodId: string, data: any) {
