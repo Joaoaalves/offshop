@@ -1,6 +1,15 @@
 import { ISupplier } from "./supplier";
 
+export type ProductType = "simples" | "kit" | "combo";
+
+export interface IProductComponent {
+  product: ISelfProduct | string; // populated or ObjectId string
+  quantity: number;
+}
+
 export interface ISelfProduct {
+  productType: ProductType;
+
   // Informações básicas
   baseSku: string;
   name: string;
@@ -11,14 +20,14 @@ export interface ISelfProduct {
   supplier: ISupplier;
 
   // Preços e impostos
-  tablePrice?: number;       // Preço de tabela (base)
-  icms?: number;             // ICMS em %
-  ipi?: number;              // IPI em %
-  difal?: number;            // DIFAL em %
-  storageCost?: number;      // Custo de armazenamento (fixo por ora)
+  tablePrice?: number;
+  icms?: number;
+  ipi?: number;
+  difal?: number;
+  storageCost?: number;
   // Calculados (não persistidos)
-  priceWithTaxes?: number;   // tablePrice * (1 + icms/100 + ipi/100 + difal/100)
-  unitPrice?: number;        // priceWithTaxes / unitsPerBox
+  priceWithTaxes?: number;
+  unitPrice?: number;
 
   // Dimensões e peso
   lengthCm?: number;
@@ -29,6 +38,13 @@ export interface ISelfProduct {
   chargeableWeightKg?: number;
 
   minStockDays: number;
+
+  // Kit
+  kitQuantity?: number;
+  parentProduct?: ISelfProduct | string;
+
+  // Combo
+  components?: IProductComponent[];
 
   stock?: {
     storage: number;  // Galpão

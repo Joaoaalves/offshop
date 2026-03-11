@@ -3,9 +3,15 @@
 import Image from "next/image";
 import { ChevronDown, ChevronRight, Trash2 } from "lucide-react";
 import { TableCell, TableRow } from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { RowDetails } from "./row-details";
+
+const TYPE_BADGE: Record<string, { label: string; className: string }> = {
+  kit:   { label: "Kit",   className: "bg-blue-100 text-blue-700 border-blue-200" },
+  combo: { label: "Combo", className: "bg-purple-100 text-purple-700 border-purple-200" },
+};
 
 const COL_SPAN = 9;
 
@@ -71,11 +77,21 @@ export function ProductRow({ product, isOpen, onToggle, onDelete }: Props) {
           {product.name}
         </TableCell>
 
-        {/* SKU */}
+        {/* SKU + type badge */}
         <TableCell>
-          <span className="rounded bg-muted px-1.5 py-0.5 font-mono text-xs">
-            {product.baseSku}
-          </span>
+          <div className="flex flex-wrap items-center gap-1.5">
+            <span className="rounded bg-muted px-1.5 py-0.5 font-mono text-xs">
+              {product.baseSku}
+            </span>
+            {TYPE_BADGE[product.productType] && (
+              <Badge
+                variant="outline"
+                className={cn("h-4 px-1 text-[10px]", TYPE_BADGE[product.productType].className)}
+              >
+                {TYPE_BADGE[product.productType].label}
+              </Badge>
+            )}
+          </div>
         </TableCell>
 
         {/* Preço de Tabela */}

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Plus } from "lucide-react";
+import { PortalContainerContext } from "@/lib/portal-container-context";
 import {
   Sheet,
   SheetContent,
@@ -22,6 +23,7 @@ interface Props {
 
 export function ProductSheet({ suppliers }: Props) {
   const [open, setOpen] = useState(false);
+  const [container, setContainer] = useState<HTMLElement | null>(null);
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
@@ -36,32 +38,38 @@ export function ProductSheet({ suppliers }: Props) {
         side="right"
         className="w-full overflow-y-auto sm:max-w-2xl"
       >
-        <SheetHeader className="pb-2">
-          <SheetTitle>Adicionar Produto</SheetTitle>
-        </SheetHeader>
+        {/* Portal container: renders combobox popups inside the dialog so  */}
+        {/* Radix's aria-hidden doesn't block them.                          */}
+        <div ref={setContainer} />
 
-        <div className="px-4 pb-8">
-          <Tabs defaultValue="manual">
-            <TabsList className="mb-6">
-              <TabsTrigger value="manual">Criar Manualmente</TabsTrigger>
-              <TabsTrigger value="import">Importar Arquivo</TabsTrigger>
-            </TabsList>
+        <PortalContainerContext.Provider value={container}>
+          <SheetHeader className="pb-2">
+            <SheetTitle>Adicionar Produto</SheetTitle>
+          </SheetHeader>
 
-            <TabsContent value="manual">
-              <ProductForm
-                suppliers={suppliers}
-                onSuccess={() => setOpen(false)}
-              />
-            </TabsContent>
+          <div className="px-4 pb-8">
+            <Tabs defaultValue="manual">
+              <TabsList className="mb-6">
+                <TabsTrigger value="manual">Criar Manualmente</TabsTrigger>
+                <TabsTrigger value="import">Importar Arquivo</TabsTrigger>
+              </TabsList>
 
-            <TabsContent value="import">
-              <ProductImport
-                suppliers={suppliers}
-                onSuccess={() => setOpen(false)}
-              />
-            </TabsContent>
-          </Tabs>
-        </div>
+              <TabsContent value="manual">
+                <ProductForm
+                  suppliers={suppliers}
+                  onSuccess={() => setOpen(false)}
+                />
+              </TabsContent>
+
+              <TabsContent value="import">
+                <ProductImport
+                  suppliers={suppliers}
+                  onSuccess={() => setOpen(false)}
+                />
+              </TabsContent>
+            </Tabs>
+          </div>
+        </PortalContainerContext.Provider>
       </SheetContent>
     </Sheet>
   );

@@ -1,38 +1,23 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ProductForm } from "@/components/self-products/product-form";
-import { ProductImport } from "@/components/self-products/product-import";
+import { SelfProductsTable } from "@/components/self-products/self-product-table";
+import { ProductSheet } from "@/components/self-products/product-sheet";
 import { api } from "@/lib/api";
+import { ProductForm } from "@/components/self-products/product-form";
 
 type Supplier = { _id: string; name: string };
 
-export default function CreateProductPage() {
+export default function ProductsPage() {
   const [suppliers, setSuppliers] = useState<Supplier[]>([]);
 
   useEffect(() => {
-    api<Supplier[]>("/api/suppliers").then(setSuppliers).catch(() => {});
+    api<Supplier[]>("/api/suppliers").then(setSuppliers).catch(() => { });
   }, []);
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-8">
-      <h1 className="mb-6 text-2xl font-bold tracking-tight">Produtos</h1>
-
-      <Tabs defaultValue="manual">
-        <TabsList className="mb-6">
-          <TabsTrigger value="manual">Criar Manualmente</TabsTrigger>
-          <TabsTrigger value="import">Importar Arquivo</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="manual">
-          <ProductForm suppliers={suppliers} />
-        </TabsContent>
-
-        <TabsContent value="import">
-          <ProductImport suppliers={suppliers} />
-        </TabsContent>
-      </Tabs>
+    <div className="px-4 py-8">
+      <ProductForm suppliers={suppliers} />
     </div>
   );
 }

@@ -66,19 +66,6 @@ const AppSideBar = () => {
                     <SidebarGroupLabel>Produtos</SidebarGroupLabel>
                     <SidebarGroupContent>
                         <SidebarMenu>
-
-                            <SidebarMenuItem>
-                                <SidebarMenuButton asChild>
-                                    <Link
-                                        href="/produtos/criar"
-                                        className={getClasses('/produtos/criar')}
-                                    >
-                                        <PlusCircleIcon />
-                                        <span>Criar Produto</span>
-                                    </Link>
-                                </SidebarMenuButton>
-                            </SidebarMenuItem>
-
                             <SidebarMenuItem>
                                 <SidebarMenuButton asChild>
                                     <Link

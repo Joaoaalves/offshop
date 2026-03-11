@@ -2,19 +2,21 @@ import { ISelfProduct } from "@/types/product";
 import { model, models, Schema } from "mongoose";
 
 const SelfProductSchema = new Schema<ISelfProduct>({
+  productType: {
+    type: String,
+    enum: ["simples", "kit", "combo"],
+    default: "simples",
+  },
+
   // Informações básicas
   baseSku:          { type: String, required: true, unique: true },
   name:             { type: String, required: true },
   imageUrl:         { type: String },
   manufacturerCode: { type: String },
-  ncm:              { type: String, match: /^\d{8}$/ }, // 8 dígitos
+  ncm:              { type: String, match: /^\d{8}$/ },
   unitsPerBox:      { type: Number },
 
-  supplier: {
-    type: Schema.Types.ObjectId,
-    ref: "Supplier",
-    required: true,
-  },
+  supplier: { type: Schema.Types.ObjectId, ref: "Supplier" },
 
   // Preços e impostos
   tablePrice:  { type: Number },
@@ -33,10 +35,22 @@ const SelfProductSchema = new Schema<ISelfProduct>({
 
   minStockDays: { type: Number, default: 30 },
 
+  // Kit
+  kitQuantity:  { type: Number },
+  parentProduct: { type: Schema.Types.ObjectId, ref: "InternalProduct" },
+
+  // Combo
+  components: [
+    {
+      product:  { type: Schema.Types.ObjectId, ref: "InternalProduct", required: true },
+      quantity: { type: Number, default: 1, required: true },
+    },
+  ],
+
   stock: {
-    storage:  { type: Number, default: 0 }, // Galpão
-    incoming: { type: Number, default: 0 }, // A Caminho
-    damage:   { type: Number, default: 0 }, // Avaria
+    storage:  { type: Number, default: 0 },
+    incoming: { type: Number, default: 0 },
+    damage:   { type: Number, default: 0 },
   },
 
   createdAt: { type: Date, default: Date.now },

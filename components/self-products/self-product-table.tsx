@@ -71,8 +71,8 @@ function Toolbar({ search, supplierId, suppliers, onSearch, onSupplier, onExport
 export function SelfProductsTable() {
   const { selfProducts, isLoading, deleteSelfProduct } = useSelfProducts();
 
-  const [openRows, setOpenRows]     = useState<Set<string>>(new Set());
-  const [search, setSearch]         = useState("");
+  const [openRows, setOpenRows] = useState<Set<string>>(new Set());
+  const [search, setSearch] = useState("");
   const [supplierId, setSupplierId] = useState("_all");
 
   // Derive unique suppliers from loaded products
@@ -176,8 +176,8 @@ export function SelfProductsTable() {
 function TableSkeleton() {
   return (
     <div className="space-y-2 rounded-xl border p-4">
-      {Array.from({ length: 5 }).map((_, i) => (
-        <Skeleton key={i} className="h-11 w-full" />
+      {Array.from({ length: 10 }).map((_, i) => (
+        <Skeleton key={i} className="h-8 w-full bg-neutral-300 animate-pulse transition-100" />
       ))}
     </div>
   );

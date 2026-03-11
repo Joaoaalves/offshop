@@ -1,8 +1,12 @@
 const COLUMNS: { key: string; header: string; get: (p: any) => string | number }[] = [
+  { key: "productType",        header: "Tipo",                   get: (p) => p.productType ?? "simples" },
   { key: "baseSku",            header: "SKU",                    get: (p) => p.baseSku ?? "" },
   { key: "name",               header: "Nome",                   get: (p) => p.name ?? "" },
   { key: "manufacturerCode",   header: "Código Fabricante",      get: (p) => p.manufacturerCode ?? "" },
   { key: "ncm",                header: "NCM",                    get: (p) => p.ncm ?? "" },
+  { key: "kitQuantity",        header: "Qtd. Kit",               get: (p) => p.kitQuantity ?? "" },
+  { key: "parentSku",          header: "SKU Produto Base",       get: (p) => typeof p.parentProduct === "object" ? p.parentProduct?.baseSku ?? "" : "" },
+  { key: "comboComponents",    header: "Componentes (SKU×Qtd)",  get: (p) => Array.isArray(p.components) ? p.components.map((c: any) => `${typeof c.product === "object" ? c.product?.baseSku : c.product}×${c.quantity}`).join("|") : "" },
   { key: "unitsPerBox",        header: "Unidades por Caixa",     get: (p) => p.unitsPerBox ?? "" },
   { key: "supplierName",       header: "Fornecedor",             get: (p) => p.supplier?.name ?? "" },
   { key: "tablePrice",         header: "Preço Tabela",           get: (p) => p.tablePrice ?? "" },
