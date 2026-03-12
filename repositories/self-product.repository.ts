@@ -50,11 +50,19 @@ export class SelfProductRepository {
   }
 
   update(prodId: string, data: any) {
-    return SelfProduct.findByIdAndUpdate(prodId, mapSupplier(data), { new: true });
+    return SelfProduct.findByIdAndUpdate(prodId, mapSupplier(data), { returnDocument: "after" });
   }
 
   delete(prodId: string) {
     return SelfProduct.findByIdAndDelete(prodId);
+  }
+
+  upsertBySku(baseSku: string, data: Record<string, unknown>) {
+    return SelfProduct.findOneAndUpdate(
+      { baseSku },
+      { $set: data },
+      { upsert: true, returnDocument: "after" },
+    );
   }
 
   bulkCreate(data: any[]) {

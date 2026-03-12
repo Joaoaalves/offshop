@@ -66,6 +66,62 @@ function Toolbar({ search, supplierId, suppliers, onSearch, onSupplier, onExport
   );
 }
 
+// ─── Supplier section ─────────────────────────────────────────────────────────
+
+interface Group { key: string; name: string; products: any[] }
+
+interface SupplierSectionProps {
+  name: string;
+  products: any[];
+  openRows: Set<string>;
+  onToggle: (id: string) => void;
+  onDelete: (id: string) => void;
+}
+
+function SupplierSection({ name, products, openRows, onToggle, onDelete }: SupplierSectionProps) {
+  return (
+    <div className="mb-6">
+      <h3 className="mb-2 flex items-center gap-2 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
+        {name}
+        <span className="rounded-full bg-muted px-2 py-0.5 text-xs font-normal normal-case tracking-normal">
+          {products.length}
+        </span>
+      </h3>
+
+      <div className="max-h-[72vh] overflow-x-auto overflow-y-auto rounded-xl border shadow-sm">
+        <Table className="table-fixed border-separate border-spacing-0 relative">
+
+          <TableHeader className="sticky top-0 z-20 bg-muted/90 backdrop-blur-sm">
+            <TableRow className="hover:bg-transparent">
+              <TableHead className="w-8" />
+              <TableHead className="w-12" />
+              <TableHead>Cód. Fabricante</TableHead>
+              <TableHead>Nome</TableHead>
+              <TableHead>SKU</TableHead>
+              <TableHead className="text-right">Preço Tabela</TableHead>
+              <TableHead className="text-right">Preço Unitário</TableHead>
+              <TableHead className="text-right">Medidas</TableHead>
+              <TableHead className="w-12" />
+            </TableRow>
+          </TableHeader>
+
+          <TableBody>
+            {products.map((product: any) => (
+              <ProductRow
+                key={product._id}
+                product={product}
+                isOpen={openRows.has(product._id)}
+                onToggle={() => onToggle(product._id)}
+                onDelete={() => onDelete(product._id)}
+              />
+            ))}
+          </TableBody>
+        </Table>
+      </div>
+    </div>
+  );
+}
+
 // ─── Table ────────────────────────────────────────────────────────────────────
 
 export function SelfProductsTable() {
@@ -75,7 +131,6 @@ export function SelfProductsTable() {
   const [search, setSearch] = useState("");
   const [supplierId, setSupplierId] = useState("_all");
 
-  // Derive unique suppliers from loaded products
   const suppliers = useMemo(() => {
     if (!selfProducts) return [];
     const seen = new Map<string, string>();
@@ -90,20 +145,27 @@ export function SelfProductsTable() {
   const filtered = useMemo(() => {
     if (!selfProducts) return [];
     const q = search.toLowerCase().trim();
-
     return (selfProducts as any[]).filter((p) => {
       const matchesSearch =
         !q ||
         p.name?.toLowerCase().includes(q) ||
         p.baseSku?.toLowerCase().includes(q) ||
         p.manufacturerCode?.toLowerCase().includes(q);
-
-      const matchesSupplier =
-        supplierId === "_all" || p.supplier?._id === supplierId;
-
+      const matchesSupplier = supplierId === "_all" || p.supplier?._id === supplierId;
       return matchesSearch && matchesSupplier;
     });
   }, [selfProducts, search, supplierId]);
+
+  const grouped = useMemo<Group[]>(() => {
+    const map = new Map<string, Group>();
+    for (const p of filtered) {
+      const key = p.supplier?._id ?? "__none__";
+      const name = p.supplier?.name ?? "Sem fornecedor";
+      if (!map.has(key)) map.set(key, { key, name, products: [] });
+      map.get(key)!.products.push(p);
+    }
+    return Array.from(map.values());
+  }, [filtered]);
 
   function toggleRow(id: string) {
     setOpenRows((prev) => {
@@ -111,6 +173,12 @@ export function SelfProductsTable() {
       next.has(id) ? next.delete(id) : next.add(id);
       return next;
     });
+  }
+
+  function handleDelete(id: string) {
+    if (confirm("Deseja remover este produto?")) {
+      deleteSelfProduct(id);
+    }
   }
 
   if (isLoading) return <TableSkeleton />;
@@ -135,39 +203,16 @@ export function SelfProductsTable() {
           </p>
         </div>
       ) : (
-        <div className="overflow-x-auto rounded-xl border shadow-sm">
-          <Table>
-            <TableHeader>
-              <TableRow className="bg-muted/50 hover:bg-muted/50">
-                <TableHead className="w-8" />
-                <TableHead className="w-12" />
-                <TableHead>Cód. Fabricante</TableHead>
-                <TableHead>Nome</TableHead>
-                <TableHead>SKU</TableHead>
-                <TableHead className="text-right">Preço Tabela</TableHead>
-                <TableHead className="text-right">Preço Unitário</TableHead>
-                <TableHead className="text-right">Medidas</TableHead>
-                <TableHead className="w-12" />
-              </TableRow>
-            </TableHeader>
-
-            <TableBody>
-              {filtered.map((product: any) => (
-                <ProductRow
-                  key={product._id}
-                  product={product}
-                  isOpen={openRows.has(product._id)}
-                  onToggle={() => toggleRow(product._id)}
-                  onDelete={() => {
-                    if (confirm("Deseja remover este produto?")) {
-                      deleteSelfProduct(product._id);
-                    }
-                  }}
-                />
-              ))}
-            </TableBody>
-          </Table>
-        </div>
+        grouped.map((group) => (
+          <SupplierSection
+            key={group.key}
+            name={group.name}
+            products={group.products}
+            openRows={openRows}
+            onToggle={toggleRow}
+            onDelete={handleDelete}
+          />
+        ))
       )}
     </>
   );

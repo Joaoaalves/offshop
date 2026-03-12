@@ -4,8 +4,13 @@ import { model, models, Schema } from "mongoose";
 export const SupplierSchema = new Schema<ISupplier>({
   name: { type: String, required: true },
 
-  /** Short uppercase prefix used as the first segment of product SKUs (e.g. "BUB"). */
-  prefix: { type: String, uppercase: true, trim: true, sparse: true, unique: true },
+  prefix: {
+    type: String,
+    uppercase: true,
+    trim: true,
+    sparse: true,
+    unique: true,
+  },
 
   leadTimeDays: { type: Number, required: true },
 

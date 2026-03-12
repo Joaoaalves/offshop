@@ -11,11 +11,21 @@ export class SupplierRepository {
 
   update(supplierId: string, data: any) {
     return Supplier.findByIdAndUpdate(supplierId, data, {
-      new: true,
+      returnDocument: "after",
     });
   }
 
   delete(supplierId: string) {
     return Supplier.findByIdAndDelete(supplierId);
+  }
+
+  findByPrefix(prefix: string) {
+    return Supplier.findOne({ prefix }).lean();
+  }
+
+  findByNamePartial(name: string) {
+    return Supplier.findOne({
+      name: { $regex: name.slice(0, 20), $options: "i" },
+    }).lean();
   }
 }
