@@ -1,3 +1,4 @@
+import "@/models/SelfProduct";
 import { Supplier } from "@/models/Supplier";
 
 export class SupplierRepository {
@@ -7,6 +8,26 @@ export class SupplierRepository {
 
   findAll() {
     return Supplier.find().lean();
+  }
+
+  findAllWithProductCount() {
+    return Supplier.aggregate([
+      {
+        $lookup: {
+          from: "internalproducts",
+          localField: "_id",
+          foreignField: "supplier",
+          as: "_products",
+        },
+      },
+      {
+        $addFields: { productCount: { $size: "$_products" } },
+      },
+      {
+        $project: { _products: 0 },
+      },
+      { $sort: { name: 1 } },
+    ]);
   }
 
   update(supplierId: string, data: any) {

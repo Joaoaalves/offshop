@@ -9,7 +9,7 @@ import { cn } from "@/lib/utils";
 import { RowDetails } from "./row-details";
 
 const TYPE_BADGE: Record<string, { label: string; className: string }> = {
-  kit:   { label: "Kit",   className: "bg-blue-100 text-blue-700 border-blue-200" },
+  kit: { label: "Kit", className: "bg-blue-100 text-blue-700 border-blue-200" },
   combo: { label: "Combo", className: "bg-purple-100 text-purple-700 border-purple-200" },
 };
 
@@ -101,7 +101,7 @@ export function ProductRow({ product, isOpen, onToggle, onDelete }: Props) {
 
         {/* Preço Unitário */}
         <TableCell className="text-right tabular-nums text-sm font-medium">
-          {product.unitPrice ? fmt(product.unitPrice) : "—"}
+          {product.cost ? fmt(product.cost) : "—"}
         </TableCell>
 
         {/* Medidas */}

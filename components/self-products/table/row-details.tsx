@@ -1,3 +1,4 @@
+import { cn } from "@/lib/utils";
 import {
   Building2,
   Calculator,
@@ -41,13 +42,15 @@ function Card({
   icon: Icon,
   title,
   children,
+  className
 }: {
   icon: React.ElementType;
   title: string;
   children: React.ReactNode;
+  className?: string;
 }) {
   return (
-    <div className="rounded-lg border p-4 shadow-lg shadow-black">
+    <div className={cn("rounded-lg border p-4 shadow-lg shadow-black", className)}>
       <div className="mb-3 flex items-center gap-2 border-b pb-2">
         <div className="flex h-6 w-6 items-center justify-center rounded bg-primary/10">
           <Icon className="h-3.5 w-3.5 text-primary" />
@@ -94,16 +97,6 @@ export function RowDetails({ product, colSpan }: Props) {
             )}
           </Card>
 
-          {isCombo && Array.isArray(product.components) && product.components.length > 0 && (
-            <Card icon={Layers} title="Componentes">
-              {product.components.map((c: any, i: number) => {
-                const p = typeof c.product === "object" ? c.product : null;
-                const label = p ? `${p.baseSku} — ${p.name}` : String(c.product);
-                return <Row key={i} label={`${c.quantity}×`} value={label} />;
-              })}
-            </Card>
-          )}
-
           <Card icon={Calculator} title="Preços e Impostos">
             <Row label="Preço de Tabela" value={product.tablePrice ? fmt(product.tablePrice) : null} />
             <Row label="ICMS" value={product.icms != null ? `${product.icms}%` : null} />
@@ -118,10 +111,63 @@ export function RowDetails({ product, colSpan }: Props) {
             <Row label="Comprimento" value={product.lengthCm ? `${product.lengthCm} cm` : null} />
             <Row label="Largura" value={product.widthCm ? `${product.widthCm} cm` : null} />
             <Row label="Altura" value={product.heightCm ? `${product.heightCm} cm` : null} />
-            <Row label="Volume" value={product.volumeCm3 ? `${product.volumeCm3} cm³` : null} />
+            <Row label="Volume" value={`${(product.lengthCm * product.widthCm * product.heightCm / 1000000).toFixed(3)} m³`} />
             <Row label="Peso" value={product.weightKg ? `${product.weightKg} kg` : null} />
             <Row label="Peso Tarif." value={product.chargeableWeightKg ? `${product.chargeableWeightKg} kg` : null} />
           </Card>
+
+          {isCombo && Array.isArray(product.components) && product.components.length > 0 && (
+            <Card icon={Layers} title="Componentes" className="col-span-3">
+              <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
+                {product.components.map((c: any, i: number) => {
+                  const p = typeof c.product === "object" ? c.product : null;
+                  if (!p) return null;
+                  return (
+                    <div
+                      key={i}
+                      className="flex flex-col overflow-hidden rounded-lg border bg-background shadow-sm"
+                    >
+                      {/* Image */}
+                      <div className="relative flex h-28 items-center justify-center bg-muted/40">
+                        {p.imageUrl ? (
+                          <img
+                            src={p.imageUrl}
+                            alt={p.name}
+                            className="h-full w-full object-contain p-2"
+                          />
+                        ) : (
+                          <Package className="h-8 w-8 text-muted-foreground/30" />
+                        )}
+                        {/* Quantity badge */}
+                        <span className="absolute right-1.5 top-1.5 rounded-full bg-primary px-1.5 py-0.5 text-[10px] font-bold leading-none text-primary-foreground">
+                          {c.quantity}×
+                        </span>
+                      </div>
+
+                      {/* Info */}
+                      <div className="flex flex-1 flex-col gap-1 p-2">
+                        <span className="font-mono text-[10px] text-muted-foreground">
+                          {p.baseSku}
+                        </span>
+                        <span className="line-clamp-2 text-xs font-medium leading-tight">
+                          {p.name}
+                        </span>
+                        {p.unitPrice != null ? (
+                          <span className="mt-auto pt-1 text-xs font-semibold text-primary">
+                            {fmt(p.unitPrice)}
+                          </span>
+                        ) : p.tablePrice != null ? (
+                          <span className="mt-auto pt-1 text-xs font-semibold text-primary">
+                            {fmt(p.tablePrice)}
+                          </span>
+                        ) : null}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </Card>
+          )}
 
         </div>
       </td>

@@ -20,10 +20,10 @@ import { ProductSearchCombobox } from "./product-search-combobox";
 type Supplier = { _id: string; name: string };
 
 interface ComponentItem {
-  productId:      string;
-  sku:            string;
-  label:          string;
-  quantity:       number;
+  productId: string;
+  sku: string;
+  label: string;
+  quantity: number;
   priceWithTaxes: number;
 }
 
@@ -38,20 +38,19 @@ function fmt(n: number) {
 
 const EMPTY_DIMS: Record<string, string> = {
   lengthCm: "", widthCm: "", heightCm: "",
-  volumeCm3: "", weightKg: "", chargeableWeightKg: "",
+  volumeM3: "", weightKg: "", storageCost: "0",
 };
 
 export function ComboForm({ suppliers, onSuccess }: Props) {
   const { createSelfProduct, createPending } = useSelfProducts();
 
-  const [components, setComponents]       = useState<ComponentItem[]>([]);
-  const [name, setName]                   = useState("");
-  const [imageUrl, setImageUrl]           = useState("");
-  const [supplierId, setSupplierId]       = useState("");
-  const [storageCost, setStorageCost]     = useState("0");
-  const [minStockDays, setMinStockDays]   = useState(30);
-  const [dims, setDims]                   = useState(EMPTY_DIMS);
-  const [errors, setErrors]               = useState<Record<string, string>>({});
+  const [components, setComponents] = useState<ComponentItem[]>([]);
+  const [name, setName] = useState("");
+  const [imageUrl, setImageUrl] = useState("");
+  const [supplierId, setSupplierId] = useState("");
+  const [minStockDays, setMinStockDays] = useState(30);
+  const [dims, setDims] = useState(EMPTY_DIMS);
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   const generatedSku = useMemo(
     () => components.length >= 2 ? generateComboSku(components.map((c) => c.sku)) : "",
@@ -68,10 +67,10 @@ export function ComboForm({ suppliers, onSuccess }: Props) {
     setComponents((prev) => [
       ...prev,
       {
-        productId:      p._id,
-        sku:            p.baseSku,
-        label:          `${p.baseSku} — ${p.name}`,
-        quantity:       1,
+        productId: p._id,
+        sku: p.baseSku,
+        label: `${p.baseSku} — ${p.name}`,
+        quantity: 1,
         priceWithTaxes: p.priceWithTaxes ?? 0,
       },
     ]);
@@ -96,12 +95,12 @@ export function ComboForm({ suppliers, onSuccess }: Props) {
 
     const data = {
       productType: "combo",
-      baseSku:     generatedSku,
+      baseSku: generatedSku,
       name,
-      components:  components.map((c) => ({ product: c.productId, quantity: c.quantity })),
-      supplierId:  supplierId || undefined,
-      imageUrl:    imageUrl || undefined,
-      storageCost: parseFloat(storageCost) || 0,
+      components: components.map((c) => ({ product: c.productId, quantity: c.quantity })),
+      supplierId: supplierId || undefined,
+      imageUrl: imageUrl || undefined,
+      storageCost: parseFloat(dims.storageCost) || 0,
       minStockDays,
       ...dimsCoerced,
     };
@@ -121,7 +120,7 @@ export function ComboForm({ suppliers, onSuccess }: Props) {
   }
 
   const excludeIds = components.map((c) => c.productId);
-  const hasEnough  = components.length >= 2;
+  const hasEnough = components.length >= 2;
 
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
@@ -232,19 +231,6 @@ export function ComboForm({ suppliers, onSuccess }: Props) {
                     ))}
                   </SelectContent>
                 </Select>
-              </div>
-
-              <div>
-                <Label className="mb-1.5 block text-sm font-medium">
-                  Custo de Armazenamento (R$)
-                </Label>
-                <Input
-                  type="number"
-                  min={0}
-                  step={0.01}
-                  value={storageCost}
-                  onChange={(e) => setStorageCost(e.target.value)}
-                />
               </div>
 
               <div>

@@ -13,7 +13,7 @@ export function Providers({ children }: { children: ReactNode }) {
             <TooltipProvider>
                 <SidebarProvider>
                     {children}
-                    <Toaster />
+                    <Toaster richColors />
                 </SidebarProvider>
             </TooltipProvider>
         </QueryClientProvider>

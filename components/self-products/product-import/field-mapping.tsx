@@ -31,9 +31,7 @@ export function FieldMapping({
   const assignedFields = Object.values(mapping).filter((v) => v !== "_ignore");
   const hasSku = assignedFields.includes("baseSku");
   const hasName = assignedFields.includes("name");
-  const hasSupplier =
-    assignedFields.includes("supplierName") || assignedFields.includes("supplierId");
-  const canProceed = hasSku && hasName && hasSupplier;
+  const canProceed = hasSku && hasName;
 
   return (
     <div className="space-y-5">
@@ -92,7 +90,6 @@ export function FieldMapping({
           <span>Obrigatórios não mapeados:</span>
           {!hasSku && <Badge variant="destructive">SKU</Badge>}
           {!hasName && <Badge variant="destructive">Nome</Badge>}
-          {!hasSupplier && <Badge variant="destructive">Fornecedor</Badge>}
         </div>
       )}
 

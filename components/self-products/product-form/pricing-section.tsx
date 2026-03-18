@@ -71,17 +71,6 @@ export function PricingSection({ values, errors, onChange }: Props) {
           />
         </Field>
 
-        <Field label="Custo de Armazenamento (R$)" error={errors.storageCost}>
-          <Input
-            type="number"
-            min={0}
-            step={0.01}
-            value={values.storageCost}
-            onChange={(e) => onChange("storageCost", e.target.value)}
-            placeholder="0,00"
-          />
-        </Field>
-
         <div className="rounded-lg bg-muted px-3 py-2">
           <p className="text-xs text-muted-foreground">Preço c/ Impostos</p>
           <p className="mt-0.5 text-sm font-semibold tabular-nums">

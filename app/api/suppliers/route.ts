@@ -5,7 +5,7 @@ import { SupplierRepository } from "@/repositories/supplier.repository";
 export async function GET() {
   await connectDB();
   const repo = new SupplierRepository();
-  return NextResponse.json(await repo.findAll());
+  return NextResponse.json(await repo.findAllWithProductCount());
 }
 
 export async function POST(req: Request) {

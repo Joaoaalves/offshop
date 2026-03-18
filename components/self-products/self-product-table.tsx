@@ -15,10 +15,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useSelfProducts } from "@/hooks/use-self-products";
 import { exportProductsCSV } from "@/lib/export-csv";
 import { ProductRow } from "./table/product-row";
+
+type ProductTypeTab = "simples" | "kit" | "combo";
 
 // ─── Toolbar ─────────────────────────────────────────────────────────────────
 
@@ -99,7 +102,7 @@ function SupplierSection({ name, products, openRows, onToggle, onDelete }: Suppl
               <TableHead>Nome</TableHead>
               <TableHead>SKU</TableHead>
               <TableHead className="text-right">Preço Tabela</TableHead>
-              <TableHead className="text-right">Preço Unitário</TableHead>
+              <TableHead className="text-right">Custo</TableHead>
               <TableHead className="text-right">Medidas</TableHead>
               <TableHead className="w-12" />
             </TableRow>
@@ -130,6 +133,19 @@ export function SelfProductsTable() {
   const [openRows, setOpenRows] = useState<Set<string>>(new Set());
   const [search, setSearch] = useState("");
   const [supplierId, setSupplierId] = useState("_all");
+  const [activeTab, setActiveTab] = useState<ProductTypeTab>("simples");
+
+  const typeCounts = useMemo(() => {
+    if (!selfProducts) return { simples: 0, kit: 0, combo: 0 };
+    return (selfProducts as any[]).reduce(
+      (acc, p) => {
+        const t: ProductTypeTab = p.productType ?? "simples";
+        if (t in acc) acc[t]++;
+        return acc;
+      },
+      { simples: 0, kit: 0, combo: 0 },
+    );
+  }, [selfProducts]);
 
   const suppliers = useMemo(() => {
     if (!selfProducts) return [];
@@ -146,15 +162,16 @@ export function SelfProductsTable() {
     if (!selfProducts) return [];
     const q = search.toLowerCase().trim();
     return (selfProducts as any[]).filter((p) => {
+      const matchesType = (p.productType ?? "simples") === activeTab;
       const matchesSearch =
         !q ||
         p.name?.toLowerCase().includes(q) ||
         p.baseSku?.toLowerCase().includes(q) ||
         p.manufacturerCode?.toLowerCase().includes(q);
       const matchesSupplier = supplierId === "_all" || p.supplier?._id === supplierId;
-      return matchesSearch && matchesSupplier;
+      return matchesType && matchesSearch && matchesSupplier;
     });
-  }, [selfProducts, search, supplierId]);
+  }, [selfProducts, search, supplierId, activeTab]);
 
   const grouped = useMemo<Group[]>(() => {
     const map = new Map<string, Group>();
@@ -185,6 +202,24 @@ export function SelfProductsTable() {
 
   return (
     <>
+      <Tabs
+        value={activeTab}
+        onValueChange={(v) => setActiveTab(v as ProductTypeTab)}
+        className="mb-5"
+      >
+        <TabsList>
+          <TabsTrigger value="simples">
+            Produtos ({typeCounts.simples})
+          </TabsTrigger>
+          <TabsTrigger value="kit">
+            Kits ({typeCounts.kit})
+          </TabsTrigger>
+          <TabsTrigger value="combo">
+            Combos ({typeCounts.combo})
+          </TabsTrigger>
+        </TabsList>
+      </Tabs>
+
       <Toolbar
         search={search}
         supplierId={supplierId}

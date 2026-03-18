@@ -12,15 +12,17 @@ export interface ISelfProduct {
 
   // Informações básicas
   baseSku: string;
+  tinyId: string;
   name: string;
   imageUrl?: string;
   manufacturerCode?: string;
-  ncm?: string;             // Código Mercosul — 8 dígitos
+  ncm?: string; // Código Mercosul — 8 dígitos
   unitsPerBox?: number;
   supplier: ISupplier;
 
   // Preços e impostos
   tablePrice?: number;
+  cost: number;
   icms?: number;
   ipi?: number;
   difal?: number;
@@ -33,7 +35,7 @@ export interface ISelfProduct {
   lengthCm?: number;
   widthCm?: number;
   heightCm?: number;
-  volumeCm3?: number;
+  volumeM3?: number;
   weightKg?: number;
   chargeableWeightKg?: number;
 
@@ -47,9 +49,9 @@ export interface ISelfProduct {
   components?: IProductComponent[];
 
   stock?: {
-    storage: number;  // Galpão
+    storage: number; // Galpão
     incoming: number; // A Caminho
-    damage: number;   // Avaria
+    damage: number; // Avaria
   };
 
   createdAt: Date;

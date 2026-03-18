@@ -9,7 +9,7 @@ function withCalculatedFields<T extends Partial<ISelfProduct>>(product: T): T {
   if (product.productType === "combo" && Array.isArray(product.components)) {
     const priceWithTaxes = product.components.reduce((sum, c) => {
       const comp = withCalculatedFields(c.product as Partial<ISelfProduct>);
-      return sum + ((comp.priceWithTaxes ?? 0) * c.quantity);
+      return sum + (comp.priceWithTaxes ?? 0) * c.quantity;
     }, 0);
     return { ...product, priceWithTaxes };
   }
@@ -50,11 +50,17 @@ export class SelfProductRepository {
   }
 
   update(prodId: string, data: any) {
-    return SelfProduct.findByIdAndUpdate(prodId, mapSupplier(data), { returnDocument: "after" });
+    return SelfProduct.findByIdAndUpdate(prodId, mapSupplier(data), {
+      returnDocument: "after",
+    });
   }
 
   delete(prodId: string) {
     return SelfProduct.findByIdAndDelete(prodId);
+  }
+
+  findByTinyId(tinyId: string) {
+    return SelfProduct.findOne({ tinyId }).lean();
   }
 
   upsertBySku(baseSku: string, data: Record<string, unknown>) {
@@ -81,9 +87,9 @@ export class SelfProductRepository {
           filter: { baseSku: sku },
           update: {
             $set: {
-              "stock.storage":  Math.max(0, storage),
+              "stock.storage": Math.max(0, storage),
               "stock.incoming": Math.max(0, incoming),
-              "stock.damage":   Math.max(0, damage),
+              "stock.damage": Math.max(0, damage),
             },
           },
         },

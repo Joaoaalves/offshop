@@ -24,8 +24,7 @@ const EMPTY_FORM: Record<string, string> = {
   baseSku: "", name: "", imageUrl: "", manufacturerCode: "", ncm: "",
   unitsPerBox: "", supplierId: "",
   tablePrice: "", icms: "0", ipi: "0", difal: "0", storageCost: "0",
-  lengthCm: "", widthCm: "", heightCm: "", volumeCm3: "", weightKg: "",
-  chargeableWeightKg: "",
+  lengthCm: "", widthCm: "", heightCm: "", volumeM3: "", weightKg: "",
   minStockDays: "30",
 };
 
@@ -33,7 +32,7 @@ export function SimplesForm({ suppliers, onSuccess }: Props) {
   const router = useRouter();
   const { createSelfProduct, createPending } = useSelfProducts();
 
-  const [form, setForm]     = useState(EMPTY_FORM);
+  const [form, setForm] = useState(EMPTY_FORM);
   const [errors, setErrors] = useState<Record<string, string>>();
 
   function setField(field: string, value: string) {

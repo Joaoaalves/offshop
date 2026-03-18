@@ -4,6 +4,7 @@ import "./globals.css";
 import { Providers } from "@/components/providers";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import AppSideBar from "@/components/app-sidebar";
+import { Toaster } from "@/components/ui/sonner";
 
 const font = Rubik({
   variable: "--font-sans",

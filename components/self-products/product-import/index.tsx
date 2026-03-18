@@ -5,29 +5,27 @@ import { toast } from "sonner";
 import { CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { api } from "@/lib/api";
-import { detectField } from "@/lib/self-product-fields";
+import { detectField, sanitizeFieldValue } from "@/lib/self-product-fields";
 import { parseCSV, parseJSONOrJSONL } from "@/lib/self-product-parser";
-import { selfProductSchema } from "@/lib/self-product-schema";
+import { importRowSchema } from "@/lib/self-product-schema";
 import { useQueryClient } from "@tanstack/react-query";
 import { DropZone } from "./drop-zone";
 import { FieldMapping } from "./field-mapping";
 import { ImportPreview, type ValidatedRow } from "./import-preview";
 
-type Supplier = { _id: string; name: string };
 type Step = "idle" | "mapping" | "preview" | "done";
 
 interface Props {
-  suppliers: Supplier[];
   onSuccess?: () => void;
 }
 
-export function ProductImport({ suppliers, onSuccess }: Props) {
+export function ProductImport({ onSuccess }: Props) {
   const qc = useQueryClient();
 
-  const [step, setStep]         = useState<Step>("idle");
-  const [rawRows, setRawRows]   = useState<Record<string, string>[]>([]);
-  const [columns, setColumns]   = useState<string[]>([]);
-  const [mapping, setMapping]   = useState<Record<string, string>>({});
+  const [step, setStep]           = useState<Step>("idle");
+  const [rawRows, setRawRows]     = useState<Record<string, string>[]>([]);
+  const [columns, setColumns]     = useState<string[]>([]);
+  const [mapping, setMapping]     = useState<Record<string, string>>({});
   const [validated, setValidated] = useState<ValidatedRow[]>([]);
   const [importing, setImporting] = useState(false);
   const [importedCount, setImportedCount] = useState(0);
@@ -61,25 +59,15 @@ export function ProductImport({ suppliers, onSuccess }: Props) {
   }
 
   function handleConfirmMapping() {
-    const supplierMap = Object.fromEntries(
-      suppliers.map((s) => [s.name.toLowerCase(), s._id]),
-    );
-
     const rows: ValidatedRow[] = rawRows.map((raw, index) => {
       const obj: Record<string, unknown> = {};
 
       for (const [col, field] of Object.entries(mapping)) {
         if (field === "_ignore") continue;
-        if (field === "supplierName") {
-          const sid = supplierMap[raw[col]?.toLowerCase()?.trim()];
-          if (sid) obj["supplierId"] = sid;
-          else obj["supplierName"] = raw[col];
-        } else {
-          obj[field] = raw[col];
-        }
+        obj[field] = sanitizeFieldValue(field, raw[col] ?? "");
       }
 
-      const result = selfProductSchema.safeParse(obj);
+      const result = importRowSchema.safeParse(obj);
       if (result.success) {
         return { index, data: result.data as Record<string, unknown>, errors: [] };
       }

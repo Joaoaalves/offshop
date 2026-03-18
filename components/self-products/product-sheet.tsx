@@ -63,7 +63,6 @@ export function ProductSheet({ suppliers }: Props) {
 
               <TabsContent value="import">
                 <ProductImport
-                  suppliers={suppliers}
                   onSuccess={() => setOpen(false)}
                 />
               </TabsContent>
