@@ -1,7 +1,7 @@
-import { ISaleBucket } from "@/types/sales";
+import { IMlSaleBucket } from "@/types/sales";
 import { model, models, Schema } from "mongoose";
 
-const SaleBucketSchema = new Schema<ISaleBucket>(
+const MlSaleBucketSchema = new Schema<IMlSaleBucket>(
   {
     date: {
       type: Date,
@@ -99,10 +99,10 @@ const SaleBucketSchema = new Schema<ISaleBucket>(
   { timestamps: true },
 );
 
-SaleBucketSchema.index({ product: 1, date: 1 }, { unique: true });
-SaleBucketSchema.index({ sku: 1, date: 1 });
-SaleBucketSchema.index({ date: 1 });
-SaleBucketSchema.index({ product: 1 });
+MlSaleBucketSchema.index({ product: 1, date: 1 }, { unique: true });
+MlSaleBucketSchema.index({ sku: 1, date: 1 });
+MlSaleBucketSchema.index({ date: 1 });
+MlSaleBucketSchema.index({ product: 1 });
 
-export const SalesBucket =
-  models.SalesBucket || model("SalesBucket", SaleBucketSchema);
+export const MlSalesBucket =
+  models.SalesBucket || model("SalesBucket", MlSaleBucketSchema);

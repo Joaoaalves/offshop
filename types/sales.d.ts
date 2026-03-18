@@ -8,6 +8,20 @@ export interface IModalityMetrics {
   orders: number;
 }
 
+export interface ITinySalesBucket {
+  date: Date;
+  product: string;
+  sku: string;
+  unitPrice: number;
+  total: { items: number; revenue: number; orders: number };
+  mercadoLivre: IChannelMetrics;
+  mercadoLivreFulfillment: IChannelMetrics;
+  shopee: IChannelMetrics;
+  amazon: IChannelMetrics;
+  tiktok: IChannelMetrics;
+  magalu: IChannelMetrics;
+}
+
 export interface IMonthBucket {
   year: number;
   month: number;
@@ -23,7 +37,7 @@ export interface IMonthBucket {
   dropOff: IModalityMetrics;
 }
 
-export interface ISaleBucket {
+export interface IMlSaleBucket {
   date: Date;
   product: string;
   sku: string;

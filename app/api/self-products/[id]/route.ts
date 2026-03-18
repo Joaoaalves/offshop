@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
 import { SelfProductRepository } from "@/repositories/self-product.repository";
+import { syncProductToSpreadsheet } from "@/services/spreadsheet-sync.service";
 
 export async function PUT(
   req: NextRequest,
@@ -8,11 +9,16 @@ export async function PUT(
 ) {
   await connectDB();
 
-  const { id } = await params; // agora faz sentido usar await
+  const { id } = await params;
   const data = await req.json();
 
   const repo = new SelfProductRepository();
   const updated = await repo.update(id, data);
+
+  if (updated) {
+    // Fire-and-forget — does not block the response
+    syncProductToSpreadsheet(updated.toObject()).catch(() => void 0);
+  }
 
   return NextResponse.json(updated);
 }

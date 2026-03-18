@@ -57,6 +57,7 @@ const SelfProductSchema = new Schema<ISelfProduct>({
   stock: {
     storage: { type: Number, default: 0 },
     incoming: { type: Number, default: 0 },
+    fulfillment: { type: Number, default: 0 },
     damage: { type: Number, default: 0 },
   },
 

@@ -95,7 +95,9 @@ function ncmClean(raw: string): string {
 export class SelfProductIngestService {
   private readonly products = new SelfProductRepository();
   private readonly suppliers = new SupplierRepository();
-  private readonly supplierResolver = new SupplierResolutionService(this.suppliers);
+  private readonly supplierResolver = new SupplierResolutionService(
+    this.suppliers,
+  );
 
   private async resolveSupplier(
     sku: string,
@@ -109,6 +111,8 @@ export class SelfProductIngestService {
   }
 
   private resolveType(p: TinyProduct): ProductType {
+    if (p.classe_produto === "V") return "variacao";
+
     if (p.codigo.startsWith("COM-")) return "combo";
 
     switch (p.classe_produto) {

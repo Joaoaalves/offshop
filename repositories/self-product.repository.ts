@@ -71,6 +71,14 @@ export class SelfProductRepository {
     );
   }
 
+  updateBySku(baseSku: string, data: Record<string, unknown>) {
+    return SelfProduct.findOneAndUpdate(
+      { baseSku },
+      { $set: data },
+      { returnDocument: "after" },
+    );
+  }
+
   bulkCreate(data: any[]) {
     if (!data.length) return Promise.resolve([]);
     return SelfProduct.insertMany(data.map(mapSupplier), { ordered: false });

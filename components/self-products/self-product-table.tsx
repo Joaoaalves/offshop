@@ -101,7 +101,7 @@ function SupplierSection({ name, products, openRows, onToggle, onDelete }: Suppl
               <TableHead>Cód. Fabricante</TableHead>
               <TableHead>Nome</TableHead>
               <TableHead>SKU</TableHead>
-              <TableHead className="text-right">Preço Tabela</TableHead>
+              <TableHead className="text-right">Preço</TableHead>
               <TableHead className="text-right">Custo</TableHead>
               <TableHead className="text-right">Medidas</TableHead>
               <TableHead className="w-12" />

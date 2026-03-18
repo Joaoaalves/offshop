@@ -1,6 +1,6 @@
 import { ISupplier } from "./supplier";
 
-export type ProductType = "simples" | "kit" | "combo";
+export type ProductType = "simples" | "kit" | "combo" | "variacao";
 
 export interface IProductComponent {
   product: ISelfProduct | string; // populated or ObjectId string
@@ -49,9 +49,10 @@ export interface ISelfProduct {
   components?: IProductComponent[];
 
   stock?: {
-    storage: number; // Galpão
-    incoming: number; // A Caminho
-    damage: number; // Avaria
+    storage: number;    // Galpão
+    incoming: number;   // A Caminho
+    fulfillment: number; // Fulfillment ML
+    damage: number;     // Avaria
   };
 
   createdAt: Date;

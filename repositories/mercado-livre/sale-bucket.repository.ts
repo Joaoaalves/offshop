@@ -1,10 +1,10 @@
-import { SalesBucket } from "@/models/Sales";
+import { MlSalesBucket } from "@/models/mercado-livre/MlSale";
 
 export class SaleBucketRepository {
   async upsertMany(docs: any[]) {
     if (!docs.length) return;
 
-    return SalesBucket.bulkWrite(
+    return MlSalesBucket.bulkWrite(
       docs.map((doc) => {
         const normalizedDate = new Date(doc.date);
         normalizedDate.setUTCHours(0, 0, 0, 0);

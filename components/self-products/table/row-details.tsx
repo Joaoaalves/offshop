@@ -1,3 +1,5 @@
+"use client";
+
 import { cn } from "@/lib/utils";
 import {
   Building2,
@@ -6,6 +8,9 @@ import {
   Package,
   Ruler,
 } from "lucide-react";
+import { toast } from "sonner";
+import { useSelfProducts } from "@/hooks/use-self-products";
+import { EditableRow } from "./editable-row";
 
 function fmt(n: number) {
   return n.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
@@ -75,16 +80,52 @@ export function RowDetails({ product, colSpan }: Props) {
   const isKit = product.productType === "kit";
   const isCombo = product.productType === "combo";
 
+  const { updateSelfProduct } = useSelfProducts();
+  const productId: string = product._id ?? product.id;
+
+  async function saveField(field: string, value: number | string | null) {
+    try {
+      await updateSelfProduct({ id: productId, data: { [field]: value } });
+      toast.success("Campo atualizado.");
+    } catch {
+      toast.error("Erro ao atualizar campo.");
+      throw new Error("save failed");
+    }
+  }
+
   return (
     <tr>
       <td colSpan={colSpan} className="border-b bg-muted/20 px-4 py-3">
         <div className="grid gap-3 md:grid-cols-3">
 
-          <Card icon={Building2} title="Informações Básicas" >
+          <Card icon={Building2} title="Informações Básicas">
             <Row label="Fornecedor" value={product.supplier?.name} />
-            <Row label="NCM" value={product.ncm} />
-            <Row label="Un. por Caixa" value={product.unitsPerBox} />
-            <Row label="Min. Estoque" value={product.minStockDays ? `${product.minStockDays} dias` : null} />
+            <EditableRow
+              label="NCM"
+              displayValue={product.ncm ?? null}
+              fieldName="ncm"
+              rawValue={product.ncm ?? null}
+              fieldType="text"
+              onSave={saveField}
+            />
+            <EditableRow
+              label="Un. por Caixa"
+              displayValue={product.unitsPerBox != null ? String(product.unitsPerBox) : null}
+              fieldName="unitsPerBox"
+              rawValue={product.unitsPerBox ?? null}
+              fieldType="number"
+              step="1"
+              onSave={saveField}
+            />
+            <EditableRow
+              label="Min. Estoque"
+              displayValue={product.minStockDays ? `${product.minStockDays} dias` : null}
+              fieldName="minStockDays"
+              rawValue={product.minStockDays ?? null}
+              fieldType="number"
+              step="1"
+              onSave={saveField}
+            />
             {isKit && (
               <Row label="Prod. Base" value={
                 typeof product.parentProduct === "object"
@@ -93,27 +134,127 @@ export function RowDetails({ product, colSpan }: Props) {
               } />
             )}
             {isKit && (
-              <Row label="Qtd. Kit" value={product.kitQuantity ? `${product.kitQuantity}x` : null} />
+              <EditableRow
+                label="Qtd. Kit"
+                displayValue={product.kitQuantity ? `${product.kitQuantity}x` : null}
+                fieldName="kitQuantity"
+                rawValue={product.kitQuantity ?? null}
+                fieldType="number"
+                step="1"
+                onSave={saveField}
+              />
             )}
           </Card>
 
           <Card icon={Calculator} title="Preços e Impostos">
-            <Row label="Preço de Tabela" value={product.tablePrice ? fmt(product.tablePrice) : null} />
-            <Row label="ICMS" value={product.icms != null ? `${product.icms}%` : null} />
-            <Row label="IPI" value={product.ipi != null ? `${product.ipi}%` : null} />
-            <Row label="DIFAL" value={product.difal != null ? `${product.difal}%` : null} />
-            <Row label="Custo Armaz." value={product.storageCost ? fmt(product.storageCost) : null} />
-            <Row label="c/ Impostos" value={product.priceWithTaxes ? fmt(product.priceWithTaxes) : null} highlight />
-            <Row label="Preço Unitário" value={product.unitPrice ? fmt(product.unitPrice) : null} highlight />
+            <EditableRow
+              label="Preço de Tabela"
+              displayValue={product.tablePrice ? fmt(product.tablePrice) : null}
+              fieldName="tablePrice"
+              rawValue={product.tablePrice ?? null}
+              fieldType="number"
+              step="0.01"
+              onSave={saveField}
+            />
+            <EditableRow
+              label="ICMS"
+              displayValue={product.icms != null ? `${product.icms.toFixed(2)}%` : null}
+              fieldName="icms"
+              rawValue={product.icms ?? null}
+              fieldType="number"
+              step="0.01"
+              onSave={saveField}
+            />
+            <EditableRow
+              label="IPI"
+              displayValue={product.ipi != null ? `${product.ipi.toFixed(2)}%` : null}
+              fieldName="ipi"
+              rawValue={product.ipi ?? null}
+              fieldType="number"
+              step="0.01"
+              onSave={saveField}
+            />
+            <EditableRow
+              label="DIFAL"
+              displayValue={product.difal != null ? `${product.difal.toFixed(2)}%` : null}
+              fieldName="difal"
+              rawValue={product.difal ?? null}
+              fieldType="number"
+              step="0.01"
+              onSave={saveField}
+            />
+            <EditableRow
+              label="Custo Armaz."
+              displayValue={product.storageCost ? fmt(product.storageCost) : null}
+              fieldName="storageCost"
+              rawValue={product.storageCost ?? null}
+              fieldType="number"
+              step="0.01"
+              onSave={saveField}
+            />
+            <Row
+              label="Custo Unitário"
+              value={product.cost ? fmt(product.cost / product.unitsPerBox) : null}
+              highlight
+            />
+            <Row
+              label="c/ Impostos"
+              value={product.priceWithTaxes ? fmt(product.priceWithTaxes) : null}
+              highlight
+            />
+
           </Card>
 
           <Card icon={Ruler} title="Dimensões e Peso">
-            <Row label="Comprimento" value={product.lengthCm ? `${product.lengthCm} cm` : null} />
-            <Row label="Largura" value={product.widthCm ? `${product.widthCm} cm` : null} />
-            <Row label="Altura" value={product.heightCm ? `${product.heightCm} cm` : null} />
-            <Row label="Volume" value={`${(product.lengthCm * product.widthCm * product.heightCm / 1000000).toFixed(3)} m³`} />
-            <Row label="Peso" value={product.weightKg ? `${product.weightKg} kg` : null} />
-            <Row label="Peso Tarif." value={product.chargeableWeightKg ? `${product.chargeableWeightKg} kg` : null} />
+            <EditableRow
+              label="Comprimento"
+              displayValue={product.lengthCm ? `${product.lengthCm} cm` : null}
+              fieldName="lengthCm"
+              rawValue={product.lengthCm ?? null}
+              fieldType="number"
+              step="0.1"
+              onSave={saveField}
+            />
+            <EditableRow
+              label="Largura"
+              displayValue={product.widthCm ? `${product.widthCm} cm` : null}
+              fieldName="widthCm"
+              rawValue={product.widthCm ?? null}
+              fieldType="number"
+              step="0.1"
+              onSave={saveField}
+            />
+            <EditableRow
+              label="Altura"
+              displayValue={product.heightCm ? `${product.heightCm} cm` : null}
+              fieldName="heightCm"
+              rawValue={product.heightCm ?? null}
+              fieldType="number"
+              step="0.1"
+              onSave={saveField}
+            />
+            <Row
+              label="Volume"
+              value={`${(product.lengthCm * product.widthCm * product.heightCm / 1000000).toFixed(3)} m³`}
+            />
+            <EditableRow
+              label="Peso"
+              displayValue={product.weightKg ? `${product.weightKg} kg` : null}
+              fieldName="weightKg"
+              rawValue={product.weightKg.toFixed(2) ?? null}
+              fieldType="number"
+              step="0.001"
+              onSave={saveField}
+            />
+            <EditableRow
+              label="Peso Tarif."
+              displayValue={product.chargeableWeightKg ? `${product.chargeableWeightKg} kg` : null}
+              fieldName="chargeableWeightKg"
+              rawValue={product.chargeableWeightKg.toFixed(2) ?? null}
+              fieldType="number"
+              step="0.001"
+              onSave={saveField}
+            />
           </Card>
 
           {isCombo && Array.isArray(product.components) && product.components.length > 0 && (
