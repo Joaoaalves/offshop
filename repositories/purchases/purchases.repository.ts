@@ -6,6 +6,7 @@ import { PurchaseDashboard } from "@/models/PurchaseDashboard";
 import { PurchasesPipelineBuilder } from "./purchases.pipeline.builder";
 import { PurchaseClassification } from "@/types/purchases";
 import { syncProductToSpreadsheet } from "@/services/spreadsheet-sync.service";
+import { IPurchaseOrderItem } from "@/types/purchase-order";
 
 export class PurchasesRepository {
   async rebuild() {
@@ -41,6 +42,33 @@ export class PurchasesRepository {
       { baseSku },
       value == null ? { $unset: { [field]: 1 } } : { $set: { [field]: value } },
       { returnDocument: "after" },
+    );
+  }
+
+  /**
+   * Executes a purchase order:
+   * 1. Increments SelfProduct.stock.incoming for each item
+   * 2. Clears the `order` field from PurchaseDashboard for each baseSku
+   *
+   * Call rebuild() afterward to refresh the dashboard.
+   */
+  async executeOrders(items: Pick<IPurchaseOrderItem, "baseSku" | "quantity">[]) {
+    if (!items.length) return;
+
+    await SelfProduct.bulkWrite(
+      items.map(({ baseSku, quantity }) => ({
+        updateOne: {
+          filter: { baseSku },
+          update: { $inc: { "stock.incoming": quantity } },
+        },
+      })),
+      { ordered: false },
+    );
+
+    const baseSkus = items.map((i) => i.baseSku);
+    await PurchaseDashboard.updateMany(
+      { baseSku: { $in: baseSkus } },
+      { $unset: { order: 1 } },
     );
   }
 

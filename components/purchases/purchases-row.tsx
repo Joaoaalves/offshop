@@ -31,12 +31,15 @@ function trendDot(item: IPurchaseDashboardItem) {
   if (item.classification === "discontinuing") return "bg-red-500";
   const hasStock = item.stock.storage + item.stock.fulfillment > 0;
   if (item.sales30d.total === 0 && hasStock) return "bg-red-500";
+  // Green only for items selling >= 0.3/day; slower movers get yellow
+  if (item.sales30d.dailyAvg < 0.3) return "bg-yellow-400";
   if (item.trend === "rising") return "bg-green-500 shadow-[0_0_4px_1px_rgba(34,197,94,0.4)]";
   if (item.trend === "falling") return "bg-yellow-400";
   return "bg-muted-foreground/20 border border-border";
 }
 
-function restockBg(days: number, leadTime: number) {
+function restockBg(days: number, leadTime: number, dailyAvg: number) {
+  if (dailyAvg === 0) return "";
   if (days < leadTime) return "bg-red-500/20 text-red-700 dark:text-red-400";
   if (days < 15) return "bg-yellow-400/20 text-yellow-700 dark:text-yellow-300";
   return "";
@@ -194,7 +197,7 @@ export function PurchasesRow({ item, isEven, onFieldSave }: PurchasesRowProps) {
         )}
       </td>
 
-      <td className={cn("px-3 py-1 text-right tabular-nums font-mono text-[11px] whitespace-nowrap", restockBg(daysOfCoverage, leadTime))}>
+      <td className={cn("px-3 py-1 text-right tabular-nums font-mono text-[11px] whitespace-nowrap", restockBg(daysOfCoverage, leadTime, item.sales30d.dailyAvg))}>
         <span className="font-semibold">{suggestedUnits > 0 ? suggestedUnits : "—"}</span>
         {daysOfCoverage < 999 && daysOfCoverage > 0 && (
           <span className="ml-1 text-[10px] opacity-60">{Math.round(daysOfCoverage)}d</span>

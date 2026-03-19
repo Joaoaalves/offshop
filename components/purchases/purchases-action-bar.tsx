@@ -24,7 +24,7 @@ interface Props {
 }
 
 export function PurchasesActionBar({ items }: Props) {
-  const { syncCosts, syncingCosts } = usePurchases();
+  const { syncCosts, syncingCosts, executeOrder, executingOrder } = usePurchases();
   const [open, setOpen] = useState(false);
   const [executing, setExecuting] = useState(false);
 
@@ -41,10 +41,14 @@ export function PurchasesActionBar({ items }: Props) {
   async function execute() {
     setExecuting(true);
     try {
-      // ── Action 1: Generate TXT ─────────────────────────────────────────────
+      // ── Action 1: Generate TXT + create order + update incoming + rebuild ──
       if (orderItems.length > 0) {
         const lines = orderItems
-          .map((i) => `${i.manufacturerCode ?? i.baseSku} - ${i.order}`)
+          .map((i) => {
+            const boxes =
+              i.unitsPerBox > 1 ? i.order! / i.unitsPerBox : i.order!;
+            return `${i.manufacturerCode ?? i.baseSku} - ${boxes}`;
+          })
           .join("\n");
         const blob = new Blob([lines], { type: "text/plain;charset=utf-8" });
         const url = URL.createObjectURL(blob);
@@ -53,6 +57,16 @@ export function PurchasesActionBar({ items }: Props) {
         a.download = `pedido_${new Date().toISOString().slice(0, 10)}.txt`;
         a.click();
         URL.revokeObjectURL(url);
+
+        await executeOrder({
+          supplierName: orderItems[0].supplierName,
+          items: orderItems.map((i) => ({
+            baseSku: i.baseSku,
+            manufacturerCode: i.manufacturerCode,
+            quantity: i.order!,
+            cost: i.newCost ?? i.cost,
+          })),
+        });
       }
 
       // ── Action 2: Atualizar Tiny (placeholder) ────────────────────────────
@@ -110,11 +124,16 @@ export function PurchasesActionBar({ items }: Props) {
                   {orderItems.length !== 1 ? "s" : ""}
                 </p>
                 <ul className="space-y-0.5 text-xs text-muted-foreground pl-3">
-                  {orderItems.map((i) => (
-                    <li key={i.baseSku} className="font-mono">
-                      {i.manufacturerCode ?? i.baseSku} — {i.order} un.
-                    </li>
-                  ))}
+                  {orderItems.map((i) => {
+                    const boxes =
+                      i.unitsPerBox > 1 ? i.order! / i.unitsPerBox : i.order!;
+                    return (
+                      <li key={i.baseSku} className="font-mono">
+                        {i.manufacturerCode ?? i.baseSku} —{" "}
+                        {boxes} cx.{i.unitsPerBox > 1 && ` (${i.order} un.)`}
+                      </li>
+                    );
+                  })}
                 </ul>
                 <p className="mt-1 text-xs text-muted-foreground">
                   Será gerado um arquivo <code>.txt</code> para download.
@@ -173,17 +192,17 @@ export function PurchasesActionBar({ items }: Props) {
               variant="outline"
               size="sm"
               onClick={() => setOpen(false)}
-              disabled={executing || syncingCosts}
+              disabled={executing || syncingCosts || executingOrder}
             >
               Cancelar
             </Button>
             <Button
               size="sm"
               onClick={execute}
-              disabled={executing || syncingCosts || !hasActions}
+              disabled={executing || syncingCosts || executingOrder || !hasActions}
               className="gap-1.5"
             >
-              {(executing || syncingCosts) && (
+              {(executing || syncingCosts || executingOrder) && (
                 <Loader2 className="h-3.5 w-3.5 animate-spin" />
               )}
               Confirmar

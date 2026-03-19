@@ -9,7 +9,9 @@ import {
     FlameIcon,
     BanIcon,
     ScanBarcode,
-    FileSpreadsheet
+    FileSpreadsheet,
+    ShoppingCart,
+    Container
 } from 'lucide-react'
 
 import Link from 'next/link'
@@ -74,6 +76,29 @@ const AppSideBar = () => {
                                     >
                                         <ListIcon />
                                         <span>Listar Produtos</span>
+                                    </Link>
+                                </SidebarMenuButton>
+                            </SidebarMenuItem>
+                            <SidebarMenuItem>
+                                <SidebarMenuButton asChild>
+                                    <Link
+                                        href="/compras"
+                                        className={getClasses('/compras')}
+                                    >
+                                        <ShoppingCart />
+                                        <span>Compras</span>
+                                    </Link>
+                                </SidebarMenuButton>
+                            </SidebarMenuItem>
+
+                            <SidebarMenuItem>
+                                <SidebarMenuButton asChild>
+                                    <Link
+                                        href="/pedidos"
+                                        className={getClasses('/pedidos')}
+                                    >
+                                        <Container />
+                                        <span>Pedidos</span>
                                     </Link>
                                 </SidebarMenuButton>
                             </SidebarMenuItem>

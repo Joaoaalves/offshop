@@ -13,6 +13,7 @@ export const ProjectStage = {
         manufacturerCode: 1,
         supplierName: 1,
         supplierLeadTimeDays: 1,
+        supplierSafetyDays: 1,
         cost: 1,
         unitsPerBox: 1,
         minStockDays: 1,

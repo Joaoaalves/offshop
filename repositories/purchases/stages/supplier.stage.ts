@@ -23,6 +23,9 @@ export const SupplierStage = {
           supplierLeadTimeDays: {
             $ifNull: [{ $arrayElemAt: ["$_supplier.leadTimeDays", 0] }, 0],
           },
+          supplierSafetyDays: {
+            $ifNull: [{ $arrayElemAt: ["$_supplier.safetyDays", 0] }, 0],
+          },
         },
       },
     ];

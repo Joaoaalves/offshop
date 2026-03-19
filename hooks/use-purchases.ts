@@ -3,6 +3,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { api } from "@/lib/api";
 import { IPurchaseDashboardItem, PurchaseClassification } from "@/types/purchases";
+import { IPurchaseOrderItem } from "@/types/purchase-order";
 
 const QK = ["purchases"] as const;
 
@@ -41,5 +42,30 @@ export function usePurchases() {
     onSuccess: () => qc.invalidateQueries({ queryKey: QK }),
   });
 
-  return { items, isLoading, rebuild, rebuilding, updateField, syncCosts, syncingCosts };
+  const { mutateAsync: executeOrder, isPending: executingOrder } = useMutation({
+    mutationFn: ({
+      supplierName,
+      items,
+    }: {
+      supplierName: string;
+      items: IPurchaseOrderItem[];
+    }) =>
+      api("/api/purchases/execute-order", {
+        method: "POST",
+        body: JSON.stringify({ supplierName, items }),
+      }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: QK }),
+  });
+
+  return {
+    items,
+    isLoading,
+    rebuild,
+    rebuilding,
+    updateField,
+    syncCosts,
+    syncingCosts,
+    executeOrder,
+    executingOrder,
+  };
 }

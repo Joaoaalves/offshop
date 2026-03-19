@@ -21,7 +21,7 @@ import {
 
 function PurchasesTableHead() {
   return (
-    <TableHeader>
+    <TableHeader className="sticky top-0 z-20 bg-card shadow-md shadow-black">
       {/* Group row */}
       <TableRow className="hover:bg-transparent border-b-0">
         <TableHead colSpan={4} className="h-7 text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60 border-r border-border/40 bg-muted/30">
@@ -82,6 +82,7 @@ function SupplierSection({
   const orderCount = items.filter((i) => i.order && i.order > 0).length;
   const alertCount = items.filter(
     (i) =>
+      i.sales30d.dailyAvg > 0 &&
       i.restock.daysOfCoverage < Math.max(leadTimeDays, 15) &&
       i.restock.suggestedUnits > 0,
   ).length;
@@ -123,8 +124,8 @@ function SupplierSection({
       </div>
 
       {/* Table */}
-      <div className="overflow-x-auto">
-        <Table>
+      <div className="overflow-x-auto max-h-[80vh]">
+        <Table className="relative">
           <PurchasesTableHead />
           <TableBody>
             {items.map((item, idx) => (

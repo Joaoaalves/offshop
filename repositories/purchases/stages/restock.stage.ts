@@ -3,12 +3,13 @@ import { PipelineStage } from "mongoose";
 /**
  * Computes restock metrics based on current stock and sales velocity.
  *
- * Total stock considered = storage + fulfillment (incoming is in transit, not yet available)
+ * Total stock considered = storage + incoming + fulfillment
  *
+ * targetDays     = minStockDays + supplierLeadTimeDays + supplierSafetyDays
  * daysOfCoverage = totalStock / dailyAvg  (999 if dailyAvg = 0 but stock > 0)
- * suggestedUnits = ceil((minStockDays - daysOfCoverage) × dailyAvg)
+ * suggestedUnits = ceil((targetDays - daysOfCoverage) × dailyAvg)
  *                  rounded UP to the nearest multiple of unitsPerBox
- *                  (0 if coverage already meets minStockDays)
+ *                  (0 if coverage already meets targetDays)
  */
 export const RestockStage = {
   compute(): PipelineStage.AddFields {
@@ -21,10 +22,17 @@ export const RestockStage = {
               totalStock: {
                 $add: [
                   { $ifNull: ["$stock.storage", 0] },
+                  { $ifNull: ["$stock.incoming", 0] },
                   { $ifNull: ["$stock.fulfillment", 0] },
                 ],
               },
-              minDays: { $ifNull: ["$minStockDays", 30] },
+              minDays: {
+                $add: [
+                  { $ifNull: ["$minStockDays", 30] },
+                  { $ifNull: ["$supplierLeadTimeDays", 0] },
+                  { $ifNull: ["$supplierSafetyDays", 0] },
+                ],
+              },
               upb: { $max: [{ $ifNull: ["$unitsPerBox", 1] }, 1] },
             },
             in: {

@@ -13,6 +13,7 @@ const PurchaseDashboardSchema = new Schema<IPurchaseDashboardItem>(
     manufacturerCode: { type: String },
     supplierName: { type: String, default: "Sem Fornecedor" },
     supplierLeadTimeDays: { type: Number, default: 0 },
+    supplierSafetyDays: { type: Number, default: 0 },
     cost: { type: Number, default: 0 },
     unitsPerBox: { type: Number, default: 1 },
 

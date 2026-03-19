@@ -29,6 +29,7 @@ export interface IPurchaseDashboardItem {
   manufacturerCode?: string;
   supplierName: string;
   supplierLeadTimeDays: number;
+  supplierSafetyDays: number;
   cost: number;
   unitsPerBox: number;
 
