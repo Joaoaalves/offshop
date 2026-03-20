@@ -14,6 +14,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { ProductForm } from "./product-form";
 import { ProductImport } from "./product-import";
+import { TinyImportForm } from "./tiny-import-form";
 
 type Supplier = { _id: string; name: string };
 
@@ -52,6 +53,7 @@ export function ProductSheet({ suppliers }: Props) {
               <TabsList className="mb-6">
                 <TabsTrigger value="manual">Criar Manualmente</TabsTrigger>
                 <TabsTrigger value="import">Importar Arquivo</TabsTrigger>
+                <TabsTrigger value="tiny">Importar do Tiny</TabsTrigger>
               </TabsList>
 
               <TabsContent value="manual">
@@ -65,6 +67,10 @@ export function ProductSheet({ suppliers }: Props) {
                 <ProductImport
                   onSuccess={() => setOpen(false)}
                 />
+              </TabsContent>
+
+              <TabsContent value="tiny">
+                <TinyImportForm onSuccess={() => setOpen(false)} />
               </TabsContent>
             </Tabs>
           </div>

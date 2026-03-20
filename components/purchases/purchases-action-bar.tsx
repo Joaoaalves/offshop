@@ -69,8 +69,6 @@ export function PurchasesActionBar({ items }: Props) {
         });
       }
 
-      // ── Action 2: Atualizar Tiny (placeholder) ────────────────────────────
-      // TODO: integrate Tiny stock update
 
       // ── Action 3: Sync costs ───────────────────────────────────────────────
       if (costItems.length > 0) {
@@ -147,15 +145,16 @@ export function PurchasesActionBar({ items }: Props) {
 
             <hr />
 
-            {/* Tiny (placeholder) */}
-            <section>
-              <p className="font-semibold text-muted-foreground">
-                Atualização Tiny
-              </p>
-              <p className="text-xs text-muted-foreground mt-0.5">
-                Pendente de implementação.
-              </p>
-            </section>
+            {/* Tiny */}
+            {orderItems.length > 0 && (
+              <section>
+                <p className="font-semibold">Atualização Tiny</p>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  Será registrada uma entrada de estoque no Tiny ERP para cada
+                  produto pedido.
+                </p>
+              </section>
+            )}
 
             <hr />
 
