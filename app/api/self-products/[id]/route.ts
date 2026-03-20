@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
 import { SelfProductRepository } from "@/repositories/self-product.repository";
+import { PurchaseDashboard } from "@/models/PurchaseDashboard";
 import { syncProductToSpreadsheet } from "@/services/spreadsheet-sync.service";
 import { requirePermission } from "@/lib/auth-guard";
 import { logAction } from "@/lib/audit";
@@ -37,7 +38,10 @@ export async function DELETE(
 
   const { id } = await params;
   const repo = new SelfProductRepository();
-  await repo.delete(id);
+  const deleted = await repo.delete(id);
+  if (deleted?.baseSku) {
+    await PurchaseDashboard.deleteOne({ baseSku: deleted.baseSku });
+  }
   logAction(req, "products:delete", { id });
 
   return NextResponse.json({ success: true });
