@@ -3,19 +3,17 @@
 import { QueryClientProvider } from "@tanstack/react-query";
 import { ReactNode } from "react";
 import { TooltipProvider } from "./ui/tooltip";
-import { SidebarProvider } from "./ui/sidebar";
-import { Toaster } from "sonner";
+import { SessionProvider } from "next-auth/react";
 import { queryClient } from "@/lib/query-client";
 
 export function Providers({ children }: { children: ReactNode }) {
     return (
-        <QueryClientProvider client={queryClient}>
-            <TooltipProvider>
-                <SidebarProvider>
+        <SessionProvider>
+            <QueryClientProvider client={queryClient}>
+                <TooltipProvider>
                     {children}
-                    <Toaster richColors />
-                </SidebarProvider>
-            </TooltipProvider>
-        </QueryClientProvider>
+                </TooltipProvider>
+            </QueryClientProvider>
+        </SessionProvider>
     )
 }

@@ -2,8 +2,6 @@ import type { Metadata } from "next";
 import { Rubik, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Providers } from "@/components/providers";
-import { SidebarTrigger } from "@/components/ui/sidebar";
-import AppSideBar from "@/components/app-sidebar";
 import { Toaster } from "@/components/ui/sonner";
 
 const font = Rubik({
@@ -27,21 +25,12 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body
-        className={`${font.variable} ${fontMono.variable} antialiased`}
-      >
+      <body className={`${font.variable} ${fontMono.variable} antialiased`}>
         <Providers>
-          <AppSideBar />
-          <div className='flex flex-1 flex-col max-w-screen overflow-hidden'>
-            <header className='bg-card sticky top-0 z-50 flex h-13.75 items-center justify-between gap-6 border-b px-4 py-2 sm:px-6'>
-              <SidebarTrigger className='[&_svg]:size-5!' />
-            </header>
-            <main className='size-full flex-1 px-4 py-6 sm:px- w-full'>
-              {children}
-            </main>
-          </div>
+          {children}
+          <Toaster richColors />
         </Providers>
       </body>
-    </html >
+    </html>
   );
 }

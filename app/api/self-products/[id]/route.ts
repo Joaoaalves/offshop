@@ -2,11 +2,14 @@ import { NextRequest, NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
 import { SelfProductRepository } from "@/repositories/self-product.repository";
 import { syncProductToSpreadsheet } from "@/services/spreadsheet-sync.service";
+import { requirePermission } from "@/lib/auth-guard";
 
 export async function PUT(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
+  const deny = await requirePermission("products:write");
+  if (deny) return deny;
   await connectDB();
 
   const { id } = await params;
@@ -27,6 +30,8 @@ export async function DELETE(
   _req: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
+  const deny = await requirePermission("products:delete");
+  if (deny) return deny;
   await connectDB();
 
   const { id } = await params;

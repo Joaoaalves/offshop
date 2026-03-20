@@ -1,16 +1,21 @@
 import { NextRequest, NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
 import { PurchaseOrderRepository } from "@/repositories/purchase-order.repository";
+import { requirePermission } from "@/lib/auth-guard";
 
 const repo = new PurchaseOrderRepository();
 
 export async function GET() {
+  const deny = await requirePermission("orders:read");
+  if (deny) return deny;
   await connectDB();
   const orders = await repo.getAll();
   return NextResponse.json(orders);
 }
 
 export async function POST(req: NextRequest) {
+  const deny = await requirePermission("orders:write");
+  if (deny) return deny;
   await connectDB();
   const { supplierName, items } = await req.json();
   const order = await repo.create(supplierName, items);

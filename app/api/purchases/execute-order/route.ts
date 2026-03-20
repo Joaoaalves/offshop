@@ -4,11 +4,14 @@ import { PurchaseOrderRepository } from "@/repositories/purchase-order.repositor
 import { PurchasesRepository } from "@/repositories/purchases/purchases.repository";
 import { IPurchaseOrderItem } from "@/types/purchase-order";
 import { syncOrderToTinyStock } from "@/services/tiny-stock-sync.service";
+import { requirePermission } from "@/lib/auth-guard";
 
 const orderRepo = new PurchaseOrderRepository();
 const purchasesRepo = new PurchasesRepository();
 
 export async function POST(req: NextRequest) {
+  const deny = await requirePermission("purchases:execute");
+  if (deny) return deny;
   await connectDB();
 
   const { supplierName, items } = (await req.json()) as {

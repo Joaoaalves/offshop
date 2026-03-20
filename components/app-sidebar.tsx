@@ -5,13 +5,11 @@ import {
     PlusCircleIcon,
     ListIcon,
     TruckIcon,
-    ShoppingCartIcon,
-    FlameIcon,
-    BanIcon,
     ScanBarcode,
     FileSpreadsheet,
     ShoppingCart,
-    Container
+    Container,
+    UsersIcon,
 } from 'lucide-react'
 
 import Link from 'next/link'
@@ -215,6 +213,26 @@ const AppSideBar = () => {
                         </SidebarGroup> */}
 
 
+                    </SidebarGroupContent>
+                </SidebarGroup>
+
+                {/* ADMIN */}
+                <SidebarGroup>
+                    <SidebarGroupLabel>Administração</SidebarGroupLabel>
+                    <SidebarGroupContent>
+                        <SidebarMenu>
+                            <SidebarMenuItem>
+                                <SidebarMenuButton asChild>
+                                    <Link
+                                        href="/admin/usuarios"
+                                        className={getClasses('/admin/usuarios')}
+                                    >
+                                        <UsersIcon />
+                                        <span>Usuários</span>
+                                    </Link>
+                                </SidebarMenuButton>
+                            </SidebarMenuItem>
+                        </SidebarMenu>
                     </SidebarGroupContent>
                 </SidebarGroup>
 

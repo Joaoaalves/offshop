@@ -1,11 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
 import { PurchasesRepository } from "@/repositories/purchases/purchases.repository";
+import { requirePermission } from "@/lib/auth-guard";
 
 export async function PATCH(
   req: NextRequest,
   { params }: { params: Promise<{ baseSku: string }> },
 ) {
+  const deny = await requirePermission("purchases:write");
+  if (deny) return deny;
   await connectDB();
   const { baseSku } = await params;
   const body = await req.json();
