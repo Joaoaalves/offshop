@@ -1,5 +1,6 @@
 import { PurchaseOrder } from "@/models/PurchaseOrder";
 import { Supplier } from "@/models/Supplier";
+import { SelfProduct } from "@/models/SelfProduct";
 import { IPurchaseOrder, IPurchaseOrderItem } from "@/types/purchase-order";
 
 export class PurchaseOrderRepository {
@@ -45,6 +46,22 @@ export class PurchaseOrderRepository {
     await Supplier.findOneAndUpdate(
       { name: order.supplierName },
       { leadTimeDays },
+    );
+
+    // Move stock: incoming → storage for every item in the order
+    await SelfProduct.bulkWrite(
+      (order.items as IPurchaseOrderItem[]).map((item) => ({
+        updateOne: {
+          filter: { baseSku: item.baseSku },
+          update: {
+            $inc: {
+              "stock.incoming": -item.quantity,
+              "stock.storage": item.quantity,
+            },
+          },
+        },
+      })),
+      { ordered: false },
     );
 
     return updated as IPurchaseOrder | null;
