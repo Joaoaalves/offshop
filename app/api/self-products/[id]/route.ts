@@ -3,6 +3,7 @@ import { connectDB } from "@/lib/db";
 import { SelfProductRepository } from "@/repositories/self-product.repository";
 import { syncProductToSpreadsheet } from "@/services/spreadsheet-sync.service";
 import { requirePermission } from "@/lib/auth-guard";
+import { logAction } from "@/lib/audit";
 
 export async function PUT(
   req: NextRequest,
@@ -19,15 +20,15 @@ export async function PUT(
   const updated = await repo.update(id, data);
 
   if (updated) {
-    // Fire-and-forget — does not block the response
     syncProductToSpreadsheet(updated.toObject()).catch(() => void 0);
   }
+  logAction(req, "products:write", { id });
 
   return NextResponse.json(updated);
 }
 
 export async function DELETE(
-  _req: NextRequest,
+  req: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
   const deny = await requirePermission("products:delete");
@@ -37,6 +38,7 @@ export async function DELETE(
   const { id } = await params;
   const repo = new SelfProductRepository();
   await repo.delete(id);
+  logAction(req, "products:delete", { id });
 
   return NextResponse.json({ success: true });
 }

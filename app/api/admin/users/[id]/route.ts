@@ -4,6 +4,7 @@ import { connectDB } from "@/lib/db";
 import { User } from "@/models/User";
 import { auth } from "@/auth";
 import { requirePermission } from "@/lib/auth-guard";
+import { logAction } from "@/lib/audit";
 
 export async function PATCH(
   req: NextRequest,
@@ -27,12 +28,12 @@ export async function PATCH(
     select: "-password",
   });
   if (!user) return NextResponse.json({ error: "Not found" }, { status: 404 });
-
+  logAction(req, "admin:write", { id, fields: Object.keys(update) });
   return NextResponse.json(user);
 }
 
 export async function DELETE(
-  _req: NextRequest,
+  req: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
   const deny = await requirePermission("admin:write");
@@ -50,5 +51,6 @@ export async function DELETE(
 
   await connectDB();
   await User.findByIdAndDelete(id);
+  logAction(req, "admin:delete", { id });
   return NextResponse.json({ ok: true });
 }

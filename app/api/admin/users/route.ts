@@ -3,6 +3,7 @@ import bcrypt from "bcryptjs";
 import { connectDB } from "@/lib/db";
 import { User, USER_ROLES } from "@/models/User";
 import { requirePermission } from "@/lib/auth-guard";
+import { logAction } from "@/lib/audit";
 
 export async function GET() {
   const deny = await requirePermission("admin:read");
@@ -45,5 +46,6 @@ export async function POST(req: NextRequest) {
   });
 
   const { password: _, ...safe } = user.toObject();
+  logAction(req, "admin:write", { id: String(user._id), email, role: role ?? "analyst" });
   return NextResponse.json(safe, { status: 201 });
 }

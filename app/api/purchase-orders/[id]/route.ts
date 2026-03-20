@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
 import { PurchaseOrderRepository } from "@/repositories/purchase-order.repository";
 import { requirePermission } from "@/lib/auth-guard";
+import { logAction } from "@/lib/audit";
 
 const repo = new PurchaseOrderRepository();
 
@@ -19,5 +20,6 @@ export async function PATCH(
   const updated = await repo.markArrived(id, date);
 
   if (!updated) return NextResponse.json({ error: "Not found" }, { status: 404 });
+  logAction(req, "orders:write", { id, arrivedAt: date.toISOString() });
   return NextResponse.json(updated);
 }

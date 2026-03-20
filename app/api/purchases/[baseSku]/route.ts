@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
 import { PurchasesRepository } from "@/repositories/purchases/purchases.repository";
 import { requirePermission } from "@/lib/auth-guard";
+import { logAction } from "@/lib/audit";
 
 export async function PATCH(
   req: NextRequest,
@@ -22,6 +23,7 @@ export async function PATCH(
 
   const repo = new PurchasesRepository();
   const updated = await repo.updateEditableField(baseSku, field, body[field]);
+  logAction(req, "purchases:write", { baseSku, field, value: body[field] });
 
   return NextResponse.json(updated);
 }

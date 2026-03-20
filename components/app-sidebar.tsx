@@ -10,6 +10,7 @@ import {
     ShoppingCart,
     Container,
     UsersIcon,
+    ActivityIcon,
 } from 'lucide-react'
 
 import Link from 'next/link'
@@ -229,6 +230,17 @@ const AppSideBar = () => {
                                     >
                                         <UsersIcon />
                                         <span>Usuários</span>
+                                    </Link>
+                                </SidebarMenuButton>
+                            </SidebarMenuItem>
+                            <SidebarMenuItem>
+                                <SidebarMenuButton asChild>
+                                    <Link
+                                        href="/admin/atividades"
+                                        className={getClasses('/admin/atividades')}
+                                    >
+                                        <ActivityIcon />
+                                        <span>Atividades</span>
                                     </Link>
                                 </SidebarMenuButton>
                             </SidebarMenuItem>

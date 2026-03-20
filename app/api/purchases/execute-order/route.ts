@@ -5,6 +5,7 @@ import { PurchasesRepository } from "@/repositories/purchases/purchases.reposito
 import { IPurchaseOrderItem } from "@/types/purchase-order";
 import { syncOrderToTinyStock } from "@/services/tiny-stock-sync.service";
 import { requirePermission } from "@/lib/auth-guard";
+import { logAction } from "@/lib/audit";
 
 const orderRepo = new PurchaseOrderRepository();
 const purchasesRepo = new PurchasesRepository();
@@ -39,5 +40,6 @@ export async function POST(req: NextRequest) {
   // 4. Rebuild the purchases dashboard so incoming stock is reflected
   await purchasesRepo.rebuild();
 
+  logAction(req, "purchases:execute", { orderId: String(order._id), supplierName, itemCount: items.length });
   return NextResponse.json({ orderId: order._id }, { status: 201 });
 }
