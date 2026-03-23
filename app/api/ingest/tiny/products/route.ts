@@ -1,3 +1,4 @@
+import { requireIngestToken } from "@/lib/ingest-guard";
 /**
  * POST /api/ingest/self-product
  *
@@ -9,11 +10,14 @@
  *   Batch:   [ { "retorno": ... }, { "retorno": ... }, ... ]
  */
 
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
 import { parseTinyBodies, SelfProductIngestService } from "@/services/self-product-ingest.service";
 
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
+  const deny = await requireIngestToken(req);
+  if (deny) return deny;
+
   const body = await req.json();
 
   const { items, errors: parseErrors } = parseTinyBodies(body);

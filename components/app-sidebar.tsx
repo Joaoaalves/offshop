@@ -11,6 +11,7 @@ import {
     Container,
     UsersIcon,
     ActivityIcon,
+    KeyRound,
 } from 'lucide-react'
 
 import Link from 'next/link'
@@ -241,6 +242,17 @@ const AppSideBar = () => {
                                     >
                                         <ActivityIcon />
                                         <span>Atividades</span>
+                                    </Link>
+                                </SidebarMenuButton>
+                            </SidebarMenuItem>
+                            <SidebarMenuItem>
+                                <SidebarMenuButton asChild>
+                                    <Link
+                                        href="/admin/api-tokens"
+                                        className={getClasses('/admin/api-tokens')}
+                                    >
+                                        <KeyRound />
+                                        <span>API Tokens</span>
                                     </Link>
                                 </SidebarMenuButton>
                             </SidebarMenuItem>

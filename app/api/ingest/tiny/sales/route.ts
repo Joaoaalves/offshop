@@ -1,8 +1,12 @@
+import { requireIngestToken } from "@/lib/ingest-guard";
 import { connectDB } from "@/lib/db";
 import { SaleRepository } from "@/repositories/sale.repository";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
+  const deny = await requireIngestToken(req);
+  if (deny) return deny;
+
   await connectDB();
 
   const body = await req.json();

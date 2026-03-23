@@ -1,3 +1,4 @@
+import { requireIngestToken } from "@/lib/ingest-guard";
 import { NextRequest, NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
 import { SelfProductRepository } from "@/repositories/self-product.repository";
@@ -128,6 +129,9 @@ function mapRow(
 // ─── Route ────────────────────────────────────────────────────────────────────
 
 export async function POST(req: NextRequest) {
+  const deny = await requireIngestToken(req);
+  if (deny) return deny;
+
   await connectDB();
 
   const bodyText = await req.text();
