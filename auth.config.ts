@@ -11,7 +11,9 @@ export const authConfig = {
       const isAuthRoute = nextUrl.pathname.startsWith("/login");
       const isApiAuth = nextUrl.pathname.startsWith("/api/auth");
 
-      if (isApiAuth) return true;
+      const isIngest = nextUrl.pathname.startsWith("/api/ingest");
+
+      if (isApiAuth || isIngest) return true;
       if (!isLoggedIn && !isAuthRoute) return false;
       if (isLoggedIn && isAuthRoute) {
         return Response.redirect(new URL("/", nextUrl));

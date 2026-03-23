@@ -5,7 +5,6 @@ import { PipelineStage } from "mongoose";
  *
  * Examples:
  *   "5U-SKU123"    → 5
- *   "KIT-SKU123"   → 1
  *   "SKU123"       → 1
  */
 const MULTIPLIER_EXPR = {
@@ -19,33 +18,25 @@ const MULTIPLIER_EXPR = {
 /**
  * Lookup sales from salesbuckets for this product's baseSku.
  *
- * Matches:
- *  - Direct simples sales:  sku === baseSku
- *  - Kit sales:             sku matches ^(\d+U-|KIT-)baseSku$ (multiplier applied)
+ * Matches (contains match — avoids $concat regex issues inside $lookup):
+ *  - Direct simples sales:  sku contains baseSku
+ *  - Kit sales:             sku matches {N}U-baseSku (multiplier applied)
  *
- * NOTE: assumes salesbuckets.sku stores the original ML product sku (with any
- * numeric/KIT prefix), which is the format produced by the ML ingest pipeline.
+ * NOTE: uses substring match identical to {$regex: baseSku} in a regular query.
  */
 export const SalesStages = {
   lookupDirectAndKit(days: number, alias: string): PipelineStage.Lookup {
     return {
       $lookup: {
-        from: "salesbuckets",
+        from: "sales",
         let: { baseSku: "$baseSku" },
         pipeline: [
           {
             $match: {
               $expr: {
                 $and: [
-                  {
-                    // Match: baseSku  OR  {N}U-baseSku  OR  KIT-baseSku
-                    $regexMatch: {
-                      input: "$sku",
-                      regex: {
-                        $concat: ["^(\\d+U-|KIT-)?", "$$baseSku", { $literal: "$" }],
-                      },
-                    },
-                  },
+                  // Contains match — same behaviour as {$regex: baseSku}
+                  { $regexMatch: { input: "$sku", regex: "$$baseSku" } },
                   {
                     $gte: [
                       "$date",
@@ -58,7 +49,6 @@ export const SalesStages = {
                       },
                     ],
                   },
-                  { $lte: ["$date", "$$NOW"] },
                 ],
               },
             },
@@ -77,22 +67,22 @@ export const SalesStages = {
   },
 
   /**
-   * Lookup InternalProduct combos that contain this simples product as a
-   * component, then sum how many units of this product were sold through them.
+   * Lookup combos that contain this simples product as a component, then sum
+   * how many units of this product were sold through them.
+   *
+   * Combos are identified by component relationship (components[].product === _id),
+   * NOT by SKU prefix — we cannot guarantee SKU format for combos.
    *
    * For each combo found:
    *   contribution = combo_items_sold × quantity_of_this_product_in_combo
    */
-  lookupComboContributions(
-    days: number,
-    alias: string,
-  ): PipelineStage.Lookup {
+  lookupComboContributions(days: number, alias: string): PipelineStage.Lookup {
     return {
       $lookup: {
         from: "internalproducts",
         let: { pid: "$_id" },
         pipeline: [
-          // 1 — Find combos that contain this product
+          // 1 — Find combos that contain this product as a component
           {
             $match: {
               $expr: {
@@ -138,24 +128,17 @@ export const SalesStages = {
             },
           },
 
-          // 3 — Lookup this combo's sales (matches COMBO-baseSku or baseSku)
+          // 3 — Lookup this combo's sales by contains match on its baseSku
           {
             $lookup: {
-              from: "salesbuckets",
+              from: "sales",
               let: { comboSku: "$baseSku", qty: "$_qty" },
               pipeline: [
                 {
                   $match: {
                     $expr: {
                       $and: [
-                        {
-                          $regexMatch: {
-                            input: "$sku",
-                            regex: {
-                              $concat: ["^(COMBO-)?", "$$comboSku", { $literal: "$" }],
-                            },
-                          },
-                        },
+                        { $regexMatch: { input: "$sku", regex: "$$comboSku" } },
                         {
                           $gte: [
                             "$date",
@@ -168,7 +151,6 @@ export const SalesStages = {
                             },
                           ],
                         },
-                        { $lte: ["$date", "$$NOW"] },
                       ],
                     },
                   },

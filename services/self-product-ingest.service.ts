@@ -113,13 +113,11 @@ export class SelfProductIngestService {
   private resolveType(p: TinyProduct): ProductType {
     if (p.classe_produto === "V") return "variacao";
 
-    if (p.codigo.startsWith("COM-")) return "combo";
-
     switch (p.classe_produto) {
       case "S":
         return "simples";
       case "K":
-        if (p.unidade === "CB") return "combo";
+        if (p.kit.length > 1) return "combo";
         return "kit";
       default:
         if (p.unidade === "KIT") return "kit";
@@ -218,7 +216,9 @@ export class SelfProductIngestService {
     const simples = items.filter((p) => this.resolveType(p) === "simples");
     const kits = items.filter((p) => this.resolveType(p) === "kit");
     const combos = items.filter((p) => this.resolveType(p) === "combo");
-
+    console.log(`Simples: ${simples.length}`);
+    console.log(`Kits: ${kits.length}`);
+    console.log(`Combos: ${combos.length}`);
     const run = (batch: TinyProduct[]) =>
       Promise.allSettled(batch.map((p) => this.ingestOne(p)));
 

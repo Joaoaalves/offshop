@@ -7,6 +7,7 @@ export interface IPurchaseSalesMetrics {
   dailyAvg: number;
 }
 
+
 export interface IPurchaseStock {
   /** Galpão — InternalProduct.stock.storage */
   storage: number;

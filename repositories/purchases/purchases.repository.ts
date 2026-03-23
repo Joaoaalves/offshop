@@ -19,6 +19,7 @@ export class PurchasesRepository {
       .withRestock()
       .persist()
       .build();
+
     await SelfProduct.aggregate(pipeline);
   }
 
@@ -52,7 +53,9 @@ export class PurchasesRepository {
    *
    * Call rebuild() afterward to refresh the dashboard.
    */
-  async executeOrders(items: Pick<IPurchaseOrderItem, "baseSku" | "quantity">[]) {
+  async executeOrders(
+    items: Pick<IPurchaseOrderItem, "baseSku" | "quantity">[],
+  ) {
     if (!items.length) return;
 
     await SelfProduct.bulkWrite(
