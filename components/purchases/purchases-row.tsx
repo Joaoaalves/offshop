@@ -8,6 +8,12 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { IPurchaseDashboardItem, PurchaseClassification } from "@/types/purchases";
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -27,6 +33,12 @@ function statusDot(c?: PurchaseClassification) {
   return "bg-muted-foreground/20 border border-border";
 }
 
+function statusLabel(c?: PurchaseClassification) {
+  if (c === "discontinuing") return "Descontinuando";
+  if (c === "observation") return "Observação";
+  return "Normal";
+}
+
 function trendDot(item: IPurchaseDashboardItem) {
   if (item.classification === "discontinuing") return "bg-red-500";
   const hasStock = item.stock.storage + item.stock.fulfillment > 0;
@@ -36,6 +48,17 @@ function trendDot(item: IPurchaseDashboardItem) {
   if (item.trend === "rising") return "bg-green-500 shadow-[0_0_4px_1px_rgba(34,197,94,0.4)]";
   if (item.trend === "falling") return "bg-yellow-400";
   return "bg-muted-foreground/20 border border-border";
+}
+
+function trendLabel(item: IPurchaseDashboardItem) {
+  if (item.classification === "discontinuing") return "Descontinuando";
+  const hasStock = item.stock.storage + item.stock.fulfillment > 0;
+  if (!hasStock) return "Sem Estoque";
+  if (item.sales30d.total === 0 && hasStock) return "Sem vendas (com estoque)";
+  if (item.sales30d.dailyAvg < 0.3) return "Vendas lentas";
+  if (item.trend === "rising") return "Em alta";
+  if (item.trend === "falling") return "Em queda";
+  return "Estável";
 }
 
 function restockBg(days: number, leadTime: number, dailyAvg: number) {
@@ -139,14 +162,23 @@ export function PurchasesRow({ item, isEven, onFieldSave }: PurchasesRowProps) {
       {/* ── Group 1: Identificação ─────────────────── */}
       <td className="px-2 py-1 w-7 text-center border-r border-border/20">
         <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <button
-              className={cn(
-                "mx-auto flex h-3 w-3 items-center justify-center rounded-full transition-all",
-                statusDot(item.classification),
-              )}
-            />
-          </DropdownMenuTrigger>
+          <TooltipProvider delayDuration={300}>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <DropdownMenuTrigger asChild>
+                  <button
+                    className={cn(
+                      "mx-auto flex h-3 w-3 items-center justify-center rounded-full transition-all",
+                      statusDot(item.classification),
+                    )}
+                  />
+                </DropdownMenuTrigger>
+              </TooltipTrigger>
+              <TooltipContent side="right" className="text-xs">
+                {statusLabel(item.classification)}
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
           <DropdownMenuContent align="start" className="w-40">
             {STATUS_OPTIONS.map((opt) => (
               <DropdownMenuItem
@@ -167,7 +199,16 @@ export function PurchasesRow({ item, isEven, onFieldSave }: PurchasesRowProps) {
       </td>
 
       <td className="px-2 py-1 w-7 text-center border-r border-border/20">
-        <div className={cn("mx-auto h-3 w-3 rounded-full transition-all", trendDot(item))} />
+        <TooltipProvider delayDuration={300}>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <div className={cn("mx-auto h-3 w-3 rounded-full transition-all cursor-default", trendDot(item))} />
+            </TooltipTrigger>
+            <TooltipContent side="right" className="text-xs">
+              {trendLabel(item)}
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
       </td>
 
       <td className="px-3 py-1 font-mono text-[11px] text-muted-foreground whitespace-nowrap">
