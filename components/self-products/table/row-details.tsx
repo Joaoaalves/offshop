@@ -194,12 +194,12 @@ export function RowDetails({ product, colSpan }: Props) {
             />
             <Row
               label="Custo Unitário"
-              value={product.cost ? fmt(product.cost / product.unitsPerBox) : null}
+              value={product.cost && product.unitsPerBox ? fmt(product.cost / product.unitsPerBox) : null}
               highlight
             />
             <Row
               label="c/ Impostos"
-              value={product.priceWithTaxes ? fmt(product.priceWithTaxes) : null}
+              value={product.priceWithTaxes ? fmt(product.priceWithTaxes) : product.cost}
               highlight
             />
 
@@ -212,7 +212,7 @@ export function RowDetails({ product, colSpan }: Props) {
               fieldName="lengthCm"
               rawValue={product.lengthCm ?? null}
               fieldType="number"
-              step="0.1"
+              step="0.0001"
               onSave={saveField}
             />
             <EditableRow
@@ -221,7 +221,7 @@ export function RowDetails({ product, colSpan }: Props) {
               fieldName="widthCm"
               rawValue={product.widthCm ?? null}
               fieldType="number"
-              step="0.1"
+              step="0.0001"
               onSave={saveField}
             />
             <EditableRow
@@ -230,7 +230,7 @@ export function RowDetails({ product, colSpan }: Props) {
               fieldName="heightCm"
               rawValue={product.heightCm ?? null}
               fieldType="number"
-              step="0.1"
+              step="0.0001"
               onSave={saveField}
             />
             <Row
@@ -243,7 +243,7 @@ export function RowDetails({ product, colSpan }: Props) {
               fieldName="weightKg"
               rawValue={product.weightKg.toFixed(2) ?? null}
               fieldType="number"
-              step="0.001"
+              step="0.0001"
               onSave={saveField}
             />
             <EditableRow

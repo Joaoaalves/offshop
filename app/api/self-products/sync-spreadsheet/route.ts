@@ -2,6 +2,29 @@ import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
 import { SelfProductRepository } from "@/repositories/self-product.repository";
 
+// Only numeric fields are synced from the spreadsheet.
+// String fields like name, baseSku, manufacturerCode, ncm are never overwritten.
+const ALLOWED_FIELDS = new Set([
+  "cost",
+  "ncm",
+  "manufacturerCode",
+  "tablePrice",
+  "unitPrice",
+  "unitsPerBox",
+  "icms",
+  "ipi",
+  "difal",
+  "storageCost",
+  "widthCm",
+  "heightCm",
+  "lengthCm",
+  "weightKg",
+  "chargeableWeightKg",
+  "volumeM3",
+  "minStockDays",
+  "kitQuantity",
+]);
+
 export async function POST() {
   const url = process.env.SPREADSHEET_URL;
   if (!url) {
@@ -42,8 +65,9 @@ export async function POST() {
     const baseSku: string = item.baseSku?.trim();
     if (!baseSku) continue;
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { baseSku: _, ...data } = item;
+    const data = Object.fromEntries(
+      Object.entries(item).filter(([k]) => ALLOWED_FIELDS.has(k)),
+    );
 
     try {
       const updated = await repo.updateBySku(baseSku, data);

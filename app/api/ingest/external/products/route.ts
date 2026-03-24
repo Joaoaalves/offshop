@@ -60,10 +60,10 @@ function parseSheetObject(text: string): Record<string, string> {
   return result;
 }
 
-function parseBody(text: string): Record<string, string>[] {
+function parseBody(text: string): Record<string, unknown>[] {
   const trimmed = text.trim();
 
-  // Try JSON first
+  // JSON (primary format sent by Apps Script)
   try {
     const parsed = JSON.parse(trimmed);
     return Array.isArray(parsed) ? parsed : [parsed];
@@ -71,9 +71,8 @@ function parseBody(text: string): Record<string, string>[] {
     // fall through to custom format
   }
 
-  // Custom {key=value} format — single object or array of objects
+  // Legacy {key=value} format — single object or array of objects
   if (trimmed.startsWith("[")) {
-    // Strip outer brackets and split into individual {…} objects
     const inner = trimmed.slice(1, -1).trim();
     const objectTexts = inner.match(/\{[^}]*\}/g) ?? [];
     return objectTexts.map(parseSheetObject);
@@ -88,10 +87,20 @@ function parseBody(text: string): Record<string, string>[] {
 
 // ─── Row mapper ───────────────────────────────────────────────────────────────
 
+function toNumber(val: unknown): number | null {
+  if (val === null || val === undefined || val === "") return null;
+  if (typeof val === "number") return isNaN(val) ? null : val;
+  // String fallback — handles "17,5" (comma decimal) and scientific notation
+  const str = String(val).trim().replace(",", ".");
+  if (str === "" || str === "null") return null;
+  const num = parseFloat(str);
+  return isNaN(num) ? null : num;
+}
+
 function mapRow(
-  raw: Record<string, string>,
+  raw: Record<string, unknown>,
 ): { baseSku: string; data: Record<string, unknown> } | null {
-  const baseSku = raw.baseSku?.trim();
+  const baseSku = String(raw.baseSku ?? "").trim();
   if (!baseSku) return null;
 
   const data: Record<string, unknown> = {};
@@ -104,15 +113,8 @@ function mapRow(
 
     let value: unknown = rawVal;
 
-    // Parse numeric fields (supports scientific notation e.g. 4.59E-4)
     if (NUMERIC_FIELDS.has(rawKey)) {
-      const trimmed = String(rawVal).trim();
-      if (trimmed === "" || trimmed === "null") {
-        value = null;
-      } else {
-        const num = parseFloat(trimmed);
-        value = isNaN(num) ? null : num;
-      }
+      value = toNumber(rawVal);
     }
 
     // Normalise NCM: "3924.90.00" → "39249000"
@@ -155,8 +157,12 @@ export async function POST(req: NextRequest) {
   for (const raw of rawRows) {
     const mapped = mapRow(raw);
 
+    console.log(mapped?.data);
     if (!mapped) {
-      results.errors.push({ baseSku: "(desconhecido)", error: "baseSku ausente" });
+      results.errors.push({
+        baseSku: "(desconhecido)",
+        error: "baseSku ausente",
+      });
       continue;
     }
 
@@ -174,8 +180,7 @@ export async function POST(req: NextRequest) {
     }
   }
 
-  const status =
-    results.errors.length > 0 && results.updated === 0 ? 500 : 200;
+  const status = results.errors.length > 0 && results.updated === 0 ? 500 : 200;
 
   return NextResponse.json(results, { status });
 }
