@@ -216,9 +216,6 @@ export class SelfProductIngestService {
     const simples = items.filter((p) => this.resolveType(p) === "simples");
     const kits = items.filter((p) => this.resolveType(p) === "kit");
     const combos = items.filter((p) => this.resolveType(p) === "combo");
-    console.log(`Simples: ${simples.length}`);
-    console.log(`Kits: ${kits.length}`);
-    console.log(`Combos: ${combos.length}`);
     const run = (batch: TinyProduct[]) =>
       Promise.allSettled(batch.map((p) => this.ingestOne(p)));
 

@@ -28,21 +28,17 @@ export async function POST(req: NextRequest) {
   // Sum all ML listings whose sku contains the baseSku (covers kit prefixes like 5U-SKU).
   const mlProducts = await MlProduct.find(
     { sku: { $exists: true } },
-    { sku: 1, "stock.full": 1 },
+    { sku: 1, "stock.full": 1, unitsPerPack: 1 },
   ).lean();
 
-  const fulfillmentByBaseSku = new Map<string, number>();
-  for (const ml of mlProducts) {
-    if (!ml.sku) continue;
-    const key = ml.sku;
-    fulfillmentByBaseSku.set(key, (fulfillmentByBaseSku.get(key) ?? 0) + (ml.stock?.full ?? 0));
-  }
-
-  // For a given baseSku, sum stock.full from all ML listings that contain it
+  // For a given baseSku, sum (stock.full × unitsPerPack) across all ML listings
+  // whose sku contains baseSku — e.g. "5U-SKU" with unitsPerPack=5 and full=10 → 50 units
   function getFulfillment(baseSku: string): number {
     let total = 0;
-    for (const [mlSku, qty] of fulfillmentByBaseSku) {
-      if (mlSku.includes(baseSku)) total += qty;
+    for (const ml of mlProducts) {
+      if (!ml.sku?.includes(baseSku)) continue;
+      const units = (ml.stock?.full ?? 0) * (ml.unitsPerPack ?? 1);
+      total += units;
     }
     return total;
   }
