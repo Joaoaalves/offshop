@@ -239,7 +239,7 @@ export function PurchasesRow({ item, isEven, onFieldSave }: PurchasesRowProps) {
       </td>
 
       <td className={cn("px-3 py-1 text-right tabular-nums font-mono text-[11px] whitespace-nowrap", restockBg(daysOfCoverage, leadTime, item.sales30d.dailyAvg))}>
-        <span className="font-semibold">{suggestedUnits > 0 ? suggestedUnits : "—"}</span>
+        <span className="font-semibold">{suggestedUnits > 0 && item.classification != "discontinuing" ? suggestedUnits : "—"}</span>
         {daysOfCoverage < 999 && daysOfCoverage > 0 && (
           <span className="ml-1 text-[10px] opacity-60">{Math.round(daysOfCoverage)}d</span>
         )}
