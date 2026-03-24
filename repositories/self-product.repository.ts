@@ -85,12 +85,18 @@ export class SelfProductRepository {
   }
 
   updateStock(
-    lines: { sku: string; storage: number; incoming: number; damage: number }[],
+    lines: {
+      sku: string;
+      storage: number;
+      incoming: number;
+      damage: number;
+      fulfillment: number;
+    }[],
   ) {
     if (!lines.length) return;
 
     return SelfProduct.bulkWrite(
-      lines.map(({ sku, storage, incoming, damage }) => ({
+      lines.map(({ sku, storage, incoming, damage, fulfillment }) => ({
         updateOne: {
           filter: { baseSku: sku },
           update: {
@@ -98,6 +104,7 @@ export class SelfProductRepository {
               "stock.storage": Math.max(0, storage),
               "stock.incoming": Math.max(0, incoming),
               "stock.damage": Math.max(0, damage),
+              "stock.fulfillment": Math.max(0, fulfillment),
             },
           },
         },
