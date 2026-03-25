@@ -18,7 +18,10 @@ const NUMERIC_FIELDS = new Set([
   "chargeableWeightKg",
   "volumeM3",
   "cost",
-  "priceWithTaxes",
+  "icms",
+  "ipi",
+  "difal",
+  "storageCost",
   "unitsPerBox",
   "minStockDays",
   "kitQuantity",
@@ -118,6 +121,17 @@ function mapRow(
     }
 
     data[modelKey] = value;
+  }
+
+  // Derive priceWithTaxes from tax fields when present
+  const cost  = data.cost  as number | null;
+  const units = (data.unitsPerBox as number | null) || 1;
+  if (cost) {
+    const icms        = (data.icms        as number | null) ?? 0;
+    const ipi         = (data.ipi         as number | null) ?? 0;
+    const difal       = (data.difal       as number | null) ?? 0;
+    const storageCost = (data.storageCost as number | null) ?? 0;
+    data.priceWithTaxes = (cost / units) * (1 + (icms + ipi + difal) / 100) + storageCost;
   }
 
   return { baseSku, data };

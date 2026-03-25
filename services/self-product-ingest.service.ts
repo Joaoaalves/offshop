@@ -169,12 +169,18 @@ export class SelfProductIngestService {
     if (row.volumeM3 != null)     doc.volumeM3     = num(row.volumeM3);
     if (row.weightKg != null)     doc.weightKg     = num(row.weightKg);
 
-    // Derive priceWithTaxes from tax fields (not stored individually)
-    const cost       = num(row.cost)        ?? num(doc.cost)        ?? 0;
-    const units      = num(row.unitsPerBox) ?? num(doc.unitsPerBox) ?? 1;
-    const icms       = num(row.icms)        ?? 0;
-    const ipi        = num(row.ipi)         ?? 0;
-    const difal      = num(row.difal)       ?? 0;
+    // Store tax fields
+    if (row.icms != null)        doc.icms        = num(row.icms);
+    if (row.ipi != null)         doc.ipi         = num(row.ipi);
+    if (row.difal != null)       doc.difal       = num(row.difal);
+    if (row.storageCost != null) doc.storageCost = num(row.storageCost);
+
+    // Derive and store priceWithTaxes
+    const cost        = num(row.cost)        ?? num(doc.cost)        ?? 0;
+    const units       = num(row.unitsPerBox) ?? num(doc.unitsPerBox) ?? 1;
+    const icms        = num(row.icms)        ?? 0;
+    const ipi         = num(row.ipi)         ?? 0;
+    const difal       = num(row.difal)       ?? 0;
     const storageCost = num(row.storageCost) ?? 0;
 
     if (cost > 0 && units > 0) {

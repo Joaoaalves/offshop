@@ -156,18 +156,29 @@ export function RowDetails({ product, colSpan }: Props) {
               step="0.01"
               onSave={saveField}
             />
-            <EditableRow
-              label="Custo Unit. c/ Impostos"
-              displayValue={product.priceWithTaxes != null ? fmt(product.priceWithTaxes) : null}
-              fieldName="priceWithTaxes"
-              rawValue={product.priceWithTaxes ?? null}
-              fieldType="number"
-              step="0.01"
-              onSave={saveField}
-            />
             <Row
               label="Custo Unitário"
               value={product.cost != null && product.unitsPerBox ? fmt(product.cost / product.unitsPerBox) : null}
+            />
+            <Row
+              label="ICMS"
+              value={product.icms != null ? `${(product.icms ?? 0).toFixed(2)}%` : null}
+            />
+            <Row
+              label="IPI"
+              value={product.ipi != null ? `${(product.ipi ?? 0).toFixed(2)}%` : null}
+            />
+            <Row
+              label="DIFAL"
+              value={product.difal != null ? `${(product.difal ?? 0).toFixed(2)}%` : null}
+            />
+            <Row
+              label="Custo Armaz."
+              value={product.storageCost != null ? fmt(product.storageCost) : null}
+            />
+            <Row
+              label="Custo Unit. c/ Impostos"
+              value={product.priceWithTaxes != null ? fmt(product.priceWithTaxes) : null}
               highlight
             />
           </Card>

@@ -20,8 +20,12 @@ const SelfProductSchema = new Schema<ISelfProduct>({
   supplier: { type: Schema.Types.ObjectId, ref: "Supplier" },
 
   // Pricing
-  cost: { type: Number, default: 0 },          // box cost
-  priceWithTaxes: { type: Number },             // unit cost with taxes (from spreadsheet)
+  cost: { type: Number, default: 0 },
+  icms: { type: Number },
+  ipi: { type: Number },
+  difal: { type: Number },
+  storageCost: { type: Number },
+  priceWithTaxes: { type: Number },   // derived: (cost/unitsPerBox)*(1+(icms+ipi+difal)/100)+storageCost
 
   // Dimensões e peso
   lengthCm: { type: Number },

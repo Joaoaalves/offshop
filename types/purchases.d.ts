@@ -32,6 +32,7 @@ export interface IPurchaseDashboardItem {
   supplierLeadTimeDays: number;
   supplierSafetyDays: number;
   cost: number;
+  priceWithTaxes?: number;
   unitsPerBox: number;
 
   sales30d: IPurchaseSalesMetrics;

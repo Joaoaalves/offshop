@@ -19,44 +19,48 @@ import {
 
 // ─── Shared column headers ────────────────────────────────────────────────────
 
+// Shared class applied to the last column of every group — thick separator
+const GRP = "border-r-2 border-border/50";
+
 function PurchasesTableHead() {
   return (
     <TableHeader className="sticky top-0 z-20 bg-card shadow-md shadow-black">
       {/* Group row */}
       <TableRow className="hover:bg-transparent border-b-0">
-        <TableHead colSpan={4} className="h-7 text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60 border-r border-border/40 bg-muted/30">
+        <TableHead colSpan={4} className={`h-7 text-[10px] font-bold uppercase tracking-widest text-blue-600/70 bg-blue-500/5 ${GRP}`}>
           Identificação
         </TableHead>
-        <TableHead colSpan={4} className="h-7 text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60 border-r border-border/40 bg-muted/30">
+        <TableHead colSpan={4} className={`h-7 text-[10px] font-bold uppercase tracking-widest text-violet-600/70 bg-violet-500/5 ${GRP}`}>
           Vendas & Pedido
         </TableHead>
-        <TableHead colSpan={5} className="h-7 text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60 border-r border-border/40 bg-muted/30">
+        <TableHead colSpan={5} className={`h-7 text-[10px] font-bold uppercase tracking-widest text-amber-600/70 bg-amber-500/5 ${GRP}`}>
           Estoque
         </TableHead>
-        <TableHead colSpan={2} className="h-7 text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60 bg-muted/30">
+        <TableHead colSpan={3} className="h-7 text-[10px] font-bold uppercase tracking-widest text-emerald-600/70 bg-emerald-500/5">
           Custo
         </TableHead>
       </TableRow>
       {/* Column row */}
       <TableRow className="hover:bg-transparent">
-        <TableHead className="w-7 h-8 bg-muted/20 text-[10px] text-muted-foreground" />
-        <TableHead className="w-7 h-8 bg-muted/20 text-[10px] text-muted-foreground" />
-        <TableHead className="h-8 bg-muted/20 text-[10px] text-muted-foreground font-semibold uppercase tracking-wider">Cód. Fab.</TableHead>
-        <TableHead className="h-8 bg-muted/20 text-[10px] text-muted-foreground font-semibold uppercase tracking-wider border-r border-border/40">SKU</TableHead>
+        <TableHead className="w-7 h-8 bg-blue-500/5 text-[10px] text-muted-foreground" />
+        <TableHead className="w-7 h-8 bg-blue-500/5 text-[10px] text-muted-foreground" />
+        <TableHead className="h-8 bg-blue-500/5 text-[10px] text-muted-foreground font-semibold uppercase tracking-wider">Cód. Fab.</TableHead>
+        <TableHead className={`h-8 bg-blue-500/5 text-[10px] text-muted-foreground font-semibold uppercase tracking-wider ${GRP}`}>SKU</TableHead>
 
-        <TableHead className="h-8 bg-muted/20 text-[10px] text-muted-foreground font-semibold uppercase tracking-wider text-right">30d</TableHead>
-        <TableHead className="h-8 bg-muted/20 text-[10px] text-muted-foreground font-semibold uppercase tracking-wider text-right">15d</TableHead>
-        <TableHead className="h-8 bg-muted/20 text-[10px] text-muted-foreground font-semibold uppercase tracking-wider text-right">Sugestão</TableHead>
-        <TableHead className="h-8 bg-muted/20 text-[10px] text-muted-foreground font-semibold uppercase tracking-wider border-r border-border/40">Pedido</TableHead>
+        <TableHead className="h-8 bg-violet-500/5 text-[10px] text-muted-foreground font-semibold uppercase tracking-wider text-right">30d</TableHead>
+        <TableHead className="h-8 bg-violet-500/5 text-[10px] text-muted-foreground font-semibold uppercase tracking-wider text-right">15d</TableHead>
+        <TableHead className="h-8 bg-violet-500/5 text-[10px] text-muted-foreground font-semibold uppercase tracking-wider text-right">Sugestão</TableHead>
+        <TableHead className={`h-8 bg-violet-500/5 text-[10px] text-muted-foreground font-semibold uppercase tracking-wider ${GRP}`}>Pedido</TableHead>
 
-        <TableHead className="h-8 bg-muted/20 text-[10px] text-muted-foreground font-semibold uppercase tracking-wider text-right">Caminho</TableHead>
-        <TableHead className="h-8 bg-muted/20 text-[10px] text-muted-foreground font-semibold uppercase tracking-wider text-right">Galpão</TableHead>
-        <TableHead className="h-8 bg-muted/20 text-[10px] text-muted-foreground font-semibold uppercase tracking-wider text-right">Full</TableHead>
-        <TableHead className="h-8 bg-muted/20 text-[10px] text-muted-foreground font-semibold uppercase tracking-wider text-right">Galp.+Cam.</TableHead>
-        <TableHead className="h-8 bg-muted/20 text-[10px] text-muted-foreground font-semibold uppercase tracking-wider text-right border-r border-border/40">Total</TableHead>
+        <TableHead className="h-8 bg-amber-500/5 text-[10px] text-muted-foreground font-semibold uppercase tracking-wider text-right">Caminho</TableHead>
+        <TableHead className="h-8 bg-amber-500/5 text-[10px] text-muted-foreground font-semibold uppercase tracking-wider text-right">Galpão</TableHead>
+        <TableHead className="h-8 bg-amber-500/5 text-[10px] text-muted-foreground font-semibold uppercase tracking-wider text-right">Full</TableHead>
+        <TableHead className="h-8 bg-amber-500/5 text-[10px] text-muted-foreground font-semibold uppercase tracking-wider text-right">Galp.+Cam.</TableHead>
+        <TableHead className={`h-8 bg-amber-500/5 text-[10px] text-muted-foreground font-semibold uppercase tracking-wider text-right ${GRP}`}>Total</TableHead>
 
-        <TableHead className="h-8 bg-muted/20 text-[10px] text-muted-foreground font-semibold uppercase tracking-wider text-right">Custo</TableHead>
-        <TableHead className="h-8 bg-muted/20 text-[10px] text-muted-foreground font-semibold uppercase tracking-wider">Novo Custo</TableHead>
+        <TableHead className="h-8 bg-emerald-500/5 text-[10px] text-muted-foreground font-semibold uppercase tracking-wider text-right">Caixa</TableHead>
+        <TableHead className="h-8 bg-emerald-500/5 text-[10px] text-muted-foreground font-semibold uppercase tracking-wider text-right">Unit. c/ Tax</TableHead>
+        <TableHead className="h-8 bg-emerald-500/5 text-[10px] text-muted-foreground font-semibold uppercase tracking-wider">Novo Custo</TableHead>
       </TableRow>
     </TableHeader>
   );

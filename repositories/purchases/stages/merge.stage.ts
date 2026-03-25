@@ -15,6 +15,7 @@ export const ProjectStage = {
         supplierLeadTimeDays: 1,
         supplierSafetyDays: 1,
         cost: 1,
+        priceWithTaxes: 1,
         unitsPerBox: 1,
         minStockDays: 1,
         sales30d: 1,

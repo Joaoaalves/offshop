@@ -5,11 +5,16 @@ import { ISelfProduct } from "@/types/product";
 // ─── Calculated fields ────────────────────────────────────────────────────────
 
 function withCalculatedFields<T extends Partial<ISelfProduct>>(product: T): T {
+  const { cost, unitsPerBox, priceWithTaxes } = product;
+
   // unitPrice = cost / unitsPerBox (derived, not stored)
-  const { cost, unitsPerBox } = product;
-  const unitPrice =
-    cost != null && unitsPerBox ? cost / unitsPerBox : undefined;
-  return { ...product, unitPrice } as T;
+  const unitPrice = cost != null && unitsPerBox ? cost / unitsPerBox : undefined;
+
+  // priceWithTaxes fallback: if not stored, use unitPrice (or cost when no unitsPerBox)
+  const resolvedPriceWithTaxes =
+    priceWithTaxes ?? unitPrice ?? cost ?? undefined;
+
+  return { ...product, unitPrice, priceWithTaxes: resolvedPriceWithTaxes } as T;
 }
 
 // ─── Data mapping ─────────────────────────────────────────────────────────────

@@ -44,11 +44,7 @@ export function PurchasesActionBar({ items }: Props) {
       // ── Action 1: Generate TXT + create order + update incoming + rebuild ──
       if (orderItems.length > 0) {
         const lines = orderItems
-          .map((i) => {
-            const boxes =
-              i.unitsPerBox > 1 ? i.order! / i.unitsPerBox : i.order!;
-            return `${i.manufacturerCode ?? i.baseSku} - ${boxes}`;
-          })
+          .map((i) => `${i.manufacturerCode ?? i.baseSku} - ${i.order}`)
           .join("\n");
         const blob = new Blob([lines], { type: "text/plain;charset=utf-8" });
         const url = URL.createObjectURL(blob);
@@ -63,7 +59,7 @@ export function PurchasesActionBar({ items }: Props) {
           items: orderItems.map((i) => ({
             baseSku: i.baseSku,
             manufacturerCode: i.manufacturerCode,
-            quantity: i.order!,
+            quantity: i.order! * (i.unitsPerBox || 1), // convert boxes → units
             cost: i.newCost ?? i.cost,
           })),
         });
@@ -122,16 +118,17 @@ export function PurchasesActionBar({ items }: Props) {
                   {orderItems.length !== 1 ? "s" : ""}
                 </p>
                 <ul className="space-y-0.5 text-xs text-muted-foreground pl-3">
-                  {orderItems.map((i) => {
-                    const boxes =
-                      i.unitsPerBox > 1 ? i.order! / i.unitsPerBox : i.order!;
-                    return (
-                      <li key={i.baseSku} className="font-mono">
-                        {i.manufacturerCode ?? i.baseSku} —{" "}
-                        {boxes} cx.{i.unitsPerBox > 1 && ` (${i.order} un.)`}
-                      </li>
-                    );
-                  })}
+                  {orderItems.map((i) => (
+                    <li key={i.baseSku} className="font-mono">
+                      {i.manufacturerCode ?? i.baseSku} —{" "}
+                      {i.order} {i.unitsPerBox > 1 ? "cx." : "un."}
+                      {i.unitsPerBox > 1 && (
+                        <span className="text-muted-foreground/60 ml-1">
+                          ({i.order! * i.unitsPerBox} un.)
+                        </span>
+                      )}
+                    </li>
+                  ))}
                 </ul>
                 <p className="mt-1 text-xs text-muted-foreground">
                   Será gerado um arquivo <code>.txt</code> para download.

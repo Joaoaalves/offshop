@@ -6,7 +6,10 @@ import { SelfProductRepository } from "@/repositories/self-product.repository";
 // String fields like name, baseSku, manufacturerCode, ncm are never overwritten.
 const ALLOWED_FIELDS = new Set([
   "cost",
-  "priceWithTaxes",
+  "icms",
+  "ipi",
+  "difal",
+  "storageCost",
   "ncm",
   "manufacturerCode",
   "unitsPerBox",
@@ -19,6 +22,17 @@ const ALLOWED_FIELDS = new Set([
   "minStockDays",
   "kitQuantity",
 ]);
+
+function calcPriceWithTaxes(item: Record<string, unknown>): number | undefined {
+  const cost = Number(item.cost);
+  const units = Number(item.unitsPerBox) || 1;
+  if (!cost) return undefined;
+  const icms = Number(item.icms) || 0;
+  const ipi = Number(item.ipi) || 0;
+  const difal = Number(item.difal) || 0;
+  const storageCost = Number(item.storageCost) || 0;
+  return (cost / units) * (1 + (icms + ipi + difal) / 100) + storageCost;
+}
 
 export async function POST() {
   const url = process.env.SPREADSHEET_URL;
@@ -64,6 +78,9 @@ export async function POST() {
     const data = Object.fromEntries(
       Object.entries(item).filter(([k]) => ALLOWED_FIELDS.has(k)),
     );
+
+    const priceWithTaxes = calcPriceWithTaxes(item);
+    if (priceWithTaxes != null) data.priceWithTaxes = priceWithTaxes;
 
     try {
       const updated = await repo.updateBySku(baseSku, data);
