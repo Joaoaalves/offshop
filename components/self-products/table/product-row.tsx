@@ -96,12 +96,12 @@ export function ProductRow({ product, isOpen, onToggle, onDelete }: Props) {
 
         {/* Preço de Tabela */}
         <TableCell className="text-right tabular-nums text-sm">
-          {product.tablePrice ? fmt(product.tablePrice) : "—"}
+          {product.cost ? fmt(product.cost) : "—"}
         </TableCell>
 
         {/* Preço Unitário */}
         <TableCell className="text-right tabular-nums text-sm font-medium">
-          {product.cost ? fmt(product.cost) : "—"}
+          {product.cost ? fmt(product?.priceWithTaxes ?? 0) : "—"}
         </TableCell>
 
         {/* Medidas */}

@@ -6,15 +6,10 @@ import { SelfProductRepository } from "@/repositories/self-product.repository";
 // String fields like name, baseSku, manufacturerCode, ncm are never overwritten.
 const ALLOWED_FIELDS = new Set([
   "cost",
+  "priceWithTaxes",
   "ncm",
   "manufacturerCode",
-  "tablePrice",
-  "unitPrice",
   "unitsPerBox",
-  "icms",
-  "ipi",
-  "difal",
-  "storageCost",
   "widthCm",
   "heightCm",
   "lengthCm",
@@ -62,6 +57,7 @@ export async function POST() {
   };
 
   for (const item of products) {
+    if (item.baseSku === "BRG-ASSEN-BN-RGD") console.log(item);
     const baseSku: string = item.baseSku?.trim();
     if (!baseSku) continue;
 

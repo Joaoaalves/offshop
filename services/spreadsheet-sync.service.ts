@@ -3,7 +3,7 @@
 
 const MODEL_TO_SHEET: Record<string, string> = {
   unitsPerBox: "quantityPerBox",
-  unitPrice: "finalUnitPrice",
+  priceWithTaxes: "finalUnitPrice",
 };
 
 // Fields that should never be forwarded to the spreadsheet

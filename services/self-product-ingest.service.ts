@@ -54,6 +54,24 @@ const tinyBodySchema = z.object({
 export type TinyBody = z.infer<typeof tinyBodySchema>;
 export type TinyProduct = z.infer<typeof tinyProductSchema>;
 
+// ─── Spreadsheet row type (fields used for enrichment) ───────────────────────
+
+interface SheetRow {
+  baseSku: string;
+  ncm?: string;
+  unitsPerBox?: number;
+  cost?: number;
+  icms?: number;
+  ipi?: number;
+  difal?: number;
+  widthCm?: number;
+  lengthCm?: number;
+  heightCm?: number;
+  volumeM3?: number;
+  weightKg?: number;
+  storageCost?: number;
+}
+
 // ─── Validation ───────────────────────────────────────────────────────────────
 
 export function parseTinyBodies(raw: unknown): {
@@ -92,12 +110,80 @@ function ncmClean(raw: string): string {
   return raw.replace(/[.\s]/g, "");
 }
 
+function num(v: unknown): number | undefined {
+  const n = Number(v);
+  return isFinite(n) ? n : undefined;
+}
+
 export class SelfProductIngestService {
   private readonly products = new SelfProductRepository();
   private readonly suppliers = new SupplierRepository();
   private readonly supplierResolver = new SupplierResolutionService(
     this.suppliers,
   );
+
+  // ── Spreadsheet enrichment ─────────────────────────────────────────────────
+
+  /**
+   * Fetches all rows from the spreadsheet and returns a Map keyed by baseSku.
+   * Returns an empty Map if SPREADSHEET_URL is not set or the request fails.
+   */
+  private async fetchSpreadsheetMap(): Promise<Map<string, SheetRow>> {
+    const url = process.env.SPREADSHEET_URL;
+    if (!url) return new Map();
+
+    try {
+      const res = await fetch(url, { method: "GET" });
+      if (!res.ok) return new Map();
+
+      const { products } = await res.json();
+      if (!Array.isArray(products)) return new Map();
+
+      const map = new Map<string, SheetRow>();
+      for (const row of products) {
+        if (row.baseSku) map.set(row.baseSku, row as SheetRow);
+      }
+      return map;
+    } catch {
+      console.warn("[ingest] Could not fetch spreadsheet for enrichment.");
+      return new Map();
+    }
+  }
+
+  /**
+   * Merges spreadsheet data into a doc built from Tiny.
+   * Spreadsheet fields always win. Tax fields (icms, ipi, difal, storageCost)
+   * are used only to derive priceWithTaxes and are not stored.
+   */
+  private applySheetEnrichment(
+    doc: Record<string, unknown>,
+    row: SheetRow,
+  ): void {
+    // Direct field overrides
+    if (row.ncm != null)         doc.ncm         = ncmClean(String(row.ncm));
+    if (row.unitsPerBox != null)  doc.unitsPerBox  = num(row.unitsPerBox);
+    if (row.cost != null)         doc.cost         = num(row.cost);
+    if (row.widthCm != null)      doc.widthCm      = num(row.widthCm);
+    if (row.lengthCm != null)     doc.lengthCm     = num(row.lengthCm);
+    if (row.heightCm != null)     doc.heightCm     = num(row.heightCm);
+    if (row.volumeM3 != null)     doc.volumeM3     = num(row.volumeM3);
+    if (row.weightKg != null)     doc.weightKg     = num(row.weightKg);
+
+    // Derive priceWithTaxes from tax fields (not stored individually)
+    const cost       = num(row.cost)        ?? num(doc.cost)        ?? 0;
+    const units      = num(row.unitsPerBox) ?? num(doc.unitsPerBox) ?? 1;
+    const icms       = num(row.icms)        ?? 0;
+    const ipi        = num(row.ipi)         ?? 0;
+    const difal      = num(row.difal)       ?? 0;
+    const storageCost = num(row.storageCost) ?? 0;
+
+    if (cost > 0 && units > 0) {
+      const unitCost = cost / units;
+      doc.priceWithTaxes = unitCost * (1 + (icms + ipi + difal) / 100) + storageCost;
+    }
+  }
+
+  // ── Internals ──────────────────────────────────────────────────────────────
 
   private async resolveSupplier(
     sku: string,
@@ -125,7 +211,10 @@ export class SelfProductIngestService {
     }
   }
 
-  private async buildDoc(p: TinyProduct): Promise<Record<string, unknown>> {
+  private async buildDoc(
+    p: TinyProduct,
+    sheetMap: Map<string, SheetRow>,
+  ): Promise<Record<string, unknown>> {
     const productType = this.resolveType(p);
     let supplierId = await this.resolveSupplier(
       p.codigo,
@@ -133,24 +222,29 @@ export class SelfProductIngestService {
       p.marca,
     );
 
+    // Initial cost from Tiny: preco_custo is unit cost.
+    // cost (box) = preco_custo * unitsPerBox; falls back to unit cost when absent.
+    const unitsPerBox = p.unidade_por_caixa || undefined;
+    const cost = unitsPerBox ? p.preco_custo * unitsPerBox : p.preco_custo;
+
+    // Initial priceWithTaxes from Tiny IPI (fixed value per unit)
+    const tinyIpi = p.valor_ipi_fixo ?? 0;
+    const priceWithTaxes = tinyIpi > 0 ? p.preco_custo + tinyIpi : undefined;
+
     const doc: Record<string, unknown> = {
       tinyId: p.id,
       productType,
       baseSku: p.codigo,
       name: p.nome,
       ncm: p.ncm ? ncmClean(p.ncm) : undefined,
-      tablePrice: p.preco,
-      unitPrice: (p?.preco ?? 0) / (p?.unidade_por_caixa ?? 1),
-      cost: p.preco_custo,
-
-      ipi: p.valor_ipi_fixo,
+      cost,
+      priceWithTaxes,
       weightKg: p.peso_liquido,
       chargeableWeightKg: p.peso_bruto,
       heightCm: p.alturaEmbalagem || undefined,
       lengthCm: p.comprimentoEmbalagem || undefined,
       widthCm: p.larguraEmbalagem || undefined,
-      unitsPerBox: p.unidade_por_caixa || undefined,
-      custo: p.preco_custo,
+      unitsPerBox,
       imageUrl: p.anexos[0]?.anexo ?? undefined,
       manufacturerCode: p.codigo_pelo_fornecedor || undefined,
     };
@@ -161,11 +255,9 @@ export class SelfProductIngestService {
       const parent = await this.products.findByTinyId(id_produto);
       doc.kitQuantity = quantidade;
       doc.parentProduct = parent ? (parent as any)._id : undefined;
-      // Inherit supplier from the parent product when not resolved directly
       if (!supplierId && parent && (parent as any).supplier) {
         supplierId = (parent as any).supplier.toString();
       }
-      // Inherit manufacturerCode from the parent when the kit has none
       if (!doc.manufacturerCode && parent && (parent as any).manufacturerCode) {
         doc.manufacturerCode = (parent as any).manufacturerCode;
       }
@@ -188,14 +280,21 @@ export class SelfProductIngestService {
 
     doc.supplier = supplierId;
 
+    // ── Spreadsheet enrichment (overrides Tiny values) ─────────────────────
+    const sheetRow = sheetMap.get(p.codigo);
+    if (sheetRow) this.applySheetEnrichment(doc, sheetRow);
+
     // Strip undefined so existing fields are not nulled on update
     return Object.fromEntries(
       Object.entries(doc).filter(([, v]) => v !== undefined),
     );
   }
 
-  async ingestOne(p: TinyProduct) {
-    const doc = await this.buildDoc(p);
+  async ingestOne(
+    p: TinyProduct,
+    sheetMap: Map<string, SheetRow> = new Map(),
+  ) {
+    const doc = await this.buildDoc(p, sheetMap);
     const saved = await this.products.upsertBySku(p.codigo, doc);
     return {
       baseSku: p.codigo,
@@ -211,13 +310,17 @@ export class SelfProductIngestService {
    *   1. simples  (base products — no dependencies)
    *   2. kits     (reference one simples product)
    *   3. combos   (reference multiple simples/kit products)
+   *
+   * The spreadsheet is fetched once for the entire batch.
    */
   async ingestMany(items: TinyProduct[]) {
+    const sheetMap = await this.fetchSpreadsheetMap();
+
     const simples = items.filter((p) => this.resolveType(p) === "simples");
-    const kits = items.filter((p) => this.resolveType(p) === "kit");
-    const combos = items.filter((p) => this.resolveType(p) === "combo");
+    const kits    = items.filter((p) => this.resolveType(p) === "kit");
+    const combos  = items.filter((p) => this.resolveType(p) === "combo");
     const run = (batch: TinyProduct[]) =>
-      Promise.allSettled(batch.map((p) => this.ingestOne(p)));
+      Promise.allSettled(batch.map((p) => this.ingestOne(p, sheetMap)));
 
     const settled = [
       ...(await run(simples)),

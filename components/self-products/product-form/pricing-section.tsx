@@ -15,71 +15,37 @@ function fmt(n: number) {
 }
 
 export function PricingSection({ values, errors, onChange }: Props) {
-  const tablePrice = parseFloat(values.tablePrice) || 0;
-  const icms       = parseFloat(values.icms) || 0;
-  const ipi        = parseFloat(values.ipi) || 0;
-  const difal      = parseFloat(values.difal) || 0;
-  const unitsPerBox = parseInt(values.unitsPerBox) || 0;
-
-  const priceWithTaxes = tablePrice > 0 ? tablePrice * (1 + (icms + ipi + difal) / 100) : 0;
-  const unitPrice      = priceWithTaxes > 0 && unitsPerBox > 0 ? priceWithTaxes / unitsPerBox : 0;
+  const cost         = parseFloat(values.cost) || 0;
+  const unitsPerBox  = parseInt(values.unitsPerBox) || 0;
+  const unitPrice    = cost > 0 && unitsPerBox > 0 ? cost / unitsPerBox : 0;
 
   return (
-    <FormSection title="Preços e Impostos">
+    <FormSection title="Preços">
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-        <Field label="Preço de Tabela (R$)" error={errors.tablePrice}>
+        <Field label="Custo da Caixa (R$)" error={errors.cost}>
           <Input
             type="number"
             min={0}
             step={0.01}
-            value={values.tablePrice}
-            onChange={(e) => onChange("tablePrice", e.target.value)}
+            value={values.cost}
+            onChange={(e) => onChange("cost", e.target.value)}
             placeholder="0,00"
           />
         </Field>
 
-        <Field label="ICMS (%)" error={errors.icms}>
+        <Field label="Custo Unit. c/ Impostos (R$)" error={errors.priceWithTaxes}>
           <Input
             type="number"
             min={0}
-            max={100}
             step={0.01}
-            value={values.icms}
-            onChange={(e) => onChange("icms", e.target.value)}
-          />
-        </Field>
-
-        <Field label="IPI (%)" error={errors.ipi}>
-          <Input
-            type="number"
-            min={0}
-            max={100}
-            step={0.01}
-            value={values.ipi}
-            onChange={(e) => onChange("ipi", e.target.value)}
-          />
-        </Field>
-
-        <Field label="DIFAL (%)" error={errors.difal}>
-          <Input
-            type="number"
-            min={0}
-            max={100}
-            step={0.01}
-            value={values.difal}
-            onChange={(e) => onChange("difal", e.target.value)}
+            value={values.priceWithTaxes}
+            onChange={(e) => onChange("priceWithTaxes", e.target.value)}
+            placeholder="0,00"
           />
         </Field>
 
         <div className="rounded-lg bg-muted px-3 py-2">
-          <p className="text-xs text-muted-foreground">Preço c/ Impostos</p>
-          <p className="mt-0.5 text-sm font-semibold tabular-nums">
-            {priceWithTaxes > 0 ? fmt(priceWithTaxes) : "—"}
-          </p>
-        </div>
-
-        <div className="rounded-lg bg-muted px-3 py-2">
-          <p className="text-xs text-muted-foreground">Preço Unitário</p>
+          <p className="text-xs text-muted-foreground">Custo Unitário</p>
           <p className="mt-0.5 text-sm font-semibold tabular-nums">
             {unitPrice > 0 ? fmt(unitPrice) : "—"}
           </p>

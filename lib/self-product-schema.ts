@@ -11,13 +11,6 @@ const dimensionsFields = {
   chargeableWeightKg: z.coerce.number().positive().optional(),
 };
 
-const taxFields = {
-  icms: z.coerce.number().min(0).max(100).default(0),
-  ipi: z.coerce.number().min(0).max(100).default(0),
-  difal: z.coerce.number().min(0).max(100).default(0),
-  storageCost: z.coerce.number().min(0).default(0),
-};
-
 // ─── Simples ─────────────────────────────────────────────────────────────────
 
 export const simplesProductSchema = z.object({
@@ -33,8 +26,8 @@ export const simplesProductSchema = z.object({
     .optional(),
   unitsPerBox: z.coerce.number().int().positive("Deve ser positivo").optional(),
   supplierId: z.string().min(1, "Fornecedor é obrigatório"),
-  tablePrice: z.coerce.number().positive("Deve ser positivo").optional(),
-  ...taxFields,
+  cost: z.coerce.number().min(0).default(0),
+  priceWithTaxes: z.coerce.number().min(0).optional(),
   ...dimensionsFields,
   minStockDays: z.coerce.number().int().positive().default(30),
 });
@@ -49,8 +42,8 @@ export const kitProductSchema = z.object({
   kitQuantity: z.coerce.number().int().min(2, "Mínimo 2 unidades"),
   supplierId: z.string().min(1, "Fornecedor é obrigatório"),
   imageUrl: z.string().url("URL inválida").or(z.literal("")).optional(),
-  tablePrice: z.coerce.number().positive().optional(),
-  ...taxFields,
+  cost: z.coerce.number().min(0).optional(),
+  priceWithTaxes: z.coerce.number().min(0).optional(),
   ...dimensionsFields,
   minStockDays: z.coerce.number().int().positive().default(30),
 });
@@ -71,7 +64,8 @@ export const comboProductSchema = z.object({
     .min(2, "Combo deve ter pelo menos 2 produtos"),
   supplierId: z.string().optional(),
   imageUrl: z.string().url("URL inválida").or(z.literal("")).optional(),
-  ...taxFields,
+  cost: z.coerce.number().min(0).optional(),
+  priceWithTaxes: z.coerce.number().min(0).optional(),
   ...dimensionsFields,
   minStockDays: z.coerce.number().int().positive().default(30),
 });

@@ -38,7 +38,7 @@ function fmt(n: number) {
 
 const EMPTY_DIMS: Record<string, string> = {
   lengthCm: "", widthCm: "", heightCm: "",
-  volumeM3: "", weightKg: "", storageCost: "0",
+  volumeM3: "", weightKg: "",
 };
 
 export function ComboForm({ suppliers, onSuccess }: Props) {
@@ -100,7 +100,6 @@ export function ComboForm({ suppliers, onSuccess }: Props) {
       components: components.map((c) => ({ product: c.productId, quantity: c.quantity })),
       supplierId: supplierId || undefined,
       imageUrl: imageUrl || undefined,
-      storageCost: parseFloat(dims.storageCost) || 0,
       minStockDays,
       ...dimsCoerced,
     };

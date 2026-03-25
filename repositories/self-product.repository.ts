@@ -5,21 +5,11 @@ import { ISelfProduct } from "@/types/product";
 // ─── Calculated fields ────────────────────────────────────────────────────────
 
 function withCalculatedFields<T extends Partial<ISelfProduct>>(product: T): T {
-  // Combo: price = sum of (component priceWithTaxes × quantity)
-  if (product.productType === "combo" && Array.isArray(product.components)) {
-    const priceWithTaxes = product.components.reduce((sum, c) => {
-      const comp = withCalculatedFields(c.product as Partial<ISelfProduct>);
-      return sum + (comp.priceWithTaxes ?? 0) * c.quantity;
-    }, 0);
-    return { ...product, priceWithTaxes };
-  }
-
-  // Simples + Kit: tax calculation from tablePrice
-  const { tablePrice, icms = 0, ipi = 0, difal = 0, unitsPerBox } = product;
-  if (tablePrice == null) return product;
-  const priceWithTaxes = tablePrice * (1 + (icms + ipi + difal) / 100);
-  const unitPrice = unitsPerBox ? priceWithTaxes / unitsPerBox : undefined;
-  return { ...product, priceWithTaxes, unitPrice };
+  // unitPrice = cost / unitsPerBox (derived, not stored)
+  const { cost, unitsPerBox } = product;
+  const unitPrice =
+    cost != null && unitsPerBox ? cost / unitsPerBox : undefined;
+  return { ...product, unitPrice } as T;
 }
 
 // ─── Data mapping ─────────────────────────────────────────────────────────────

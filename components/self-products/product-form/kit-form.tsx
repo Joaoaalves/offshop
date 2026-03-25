@@ -22,15 +22,13 @@ export function KitForm({ onSuccess }: Props) {
   const [kitQuantity, setKitQuantity] = useState(2);
   const [name, setName]               = useState("");
   const [imageUrl, setImageUrl]       = useState("");
-  const [tablePrice, setTablePrice]   = useState("");
   const [minStockDays, setMinStockDays] = useState(30);
   const [errors, setErrors]           = useState<Record<string, string>>({});
 
-  // Auto-fill name and price when parent or quantity changes
+  // Auto-fill name when parent or quantity changes
   useEffect(() => {
     if (!parent) return;
     setName(`Kit ${kitQuantity}x ${parent.name}`);
-    setTablePrice(String(((parent.tablePrice ?? 0) * kitQuantity).toFixed(2)));
   }, [parent, kitQuantity]);
 
   const generatedSku = parent ? generateKitSku(parent.baseSku, kitQuantity) : "";
@@ -46,7 +44,6 @@ export function KitForm({ onSuccess }: Props) {
       kitQuantity,
       supplierId:    parent?.supplier?._id,
       imageUrl:      imageUrl || undefined,
-      tablePrice:    tablePrice || undefined,
       minStockDays,
     };
 
@@ -110,17 +107,6 @@ export function KitForm({ onSuccess }: Props) {
               <Label className="mb-1.5 block text-sm font-medium">Nome *</Label>
               <Input value={name} onChange={(e) => setName(e.target.value)} />
               {errors.name && <p className="mt-1 text-xs text-destructive">{errors.name}</p>}
-            </div>
-
-            <div>
-              <Label className="mb-1.5 block text-sm font-medium">Preço de Tabela (R$)</Label>
-              <Input
-                type="number"
-                min={0}
-                step={0.01}
-                value={tablePrice}
-                onChange={(e) => setTablePrice(e.target.value)}
-              />
             </div>
 
             <div>

@@ -146,63 +146,30 @@ export function RowDetails({ product, colSpan }: Props) {
             )}
           </Card>
 
-          <Card icon={Calculator} title="Preços e Impostos">
+          <Card icon={Calculator} title="Preços">
             <EditableRow
-              label="Preço de Tabela"
-              displayValue={product.tablePrice ? fmt(product.tablePrice) : null}
-              fieldName="tablePrice"
-              rawValue={product.tablePrice ?? null}
+              label="Custo (caixa)"
+              displayValue={product.cost != null ? fmt(product.cost) : null}
+              fieldName="cost"
+              rawValue={product.cost ?? null}
               fieldType="number"
               step="0.01"
               onSave={saveField}
             />
             <EditableRow
-              label="ICMS"
-              displayValue={product.icms != null ? `${product.icms.toFixed(2)}%` : null}
-              fieldName="icms"
-              rawValue={product.icms ?? null}
-              fieldType="number"
-              step="0.01"
-              onSave={saveField}
-            />
-            <EditableRow
-              label="IPI"
-              displayValue={product.ipi != null ? `${product.ipi.toFixed(2)}%` : null}
-              fieldName="ipi"
-              rawValue={product.ipi ?? null}
-              fieldType="number"
-              step="0.01"
-              onSave={saveField}
-            />
-            <EditableRow
-              label="DIFAL"
-              displayValue={product.difal != null ? `${product.difal.toFixed(2)}%` : null}
-              fieldName="difal"
-              rawValue={product.difal ?? null}
-              fieldType="number"
-              step="0.01"
-              onSave={saveField}
-            />
-            <EditableRow
-              label="Custo Armaz."
-              displayValue={product.storageCost ? fmt(product.storageCost) : null}
-              fieldName="storageCost"
-              rawValue={product.storageCost ?? null}
+              label="Custo Unit. c/ Impostos"
+              displayValue={product.priceWithTaxes != null ? fmt(product.priceWithTaxes) : null}
+              fieldName="priceWithTaxes"
+              rawValue={product.priceWithTaxes ?? null}
               fieldType="number"
               step="0.01"
               onSave={saveField}
             />
             <Row
               label="Custo Unitário"
-              value={product.cost && product.unitsPerBox ? fmt(product.cost / product.unitsPerBox) : null}
+              value={product.cost != null && product.unitsPerBox ? fmt(product.cost / product.unitsPerBox) : null}
               highlight
             />
-            <Row
-              label="c/ Impostos"
-              value={product.priceWithTaxes ? fmt(product.priceWithTaxes) : product.cost}
-              highlight
-            />
-
           </Card>
 
           <Card icon={Ruler} title="Dimensões e Peso">
@@ -293,13 +260,13 @@ export function RowDetails({ product, colSpan }: Props) {
                         <span className="line-clamp-2 text-xs font-medium leading-tight">
                           {p.name}
                         </span>
-                        {p.unitPrice != null ? (
+                        {p.priceWithTaxes != null ? (
                           <span className="mt-auto pt-1 text-xs font-semibold text-primary">
-                            {fmt(p.unitPrice)}
+                            {fmt(p.priceWithTaxes)}
                           </span>
-                        ) : p.tablePrice != null ? (
+                        ) : p.cost != null && p.unitsPerBox ? (
                           <span className="mt-auto pt-1 text-xs font-semibold text-primary">
-                            {fmt(p.tablePrice)}
+                            {fmt(p.cost / p.unitsPerBox)}
                           </span>
                         ) : null}
                       </div>

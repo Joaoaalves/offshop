@@ -48,25 +48,20 @@ const COLUMNS: {
     header: "Fornecedor",
     get: (p) => p.supplier?.name ?? "",
   },
-  { key: "tablePrice", header: "Preço Tabela", get: (p) => p.tablePrice ?? "" },
-  { key: "icms", header: "ICMS (%)", get: (p) => p.icms ?? "" },
-  { key: "ipi", header: "IPI (%)", get: (p) => p.ipi ?? "" },
-  { key: "difal", header: "DIFAL (%)", get: (p) => p.difal ?? "" },
-  {
-    key: "storageCost",
-    header: "Custo Armazenamento",
-    get: (p) => p.storageCost ?? "",
-  },
+  { key: "cost", header: "Custo (caixa)", get: (p) => p.cost ?? "" },
   {
     key: "priceWithTaxes",
-    header: "Preço c/ Impostos",
+    header: "Custo Unit. c/ Impostos",
     get: (p) =>
       p.priceWithTaxes != null ? Number(p.priceWithTaxes).toFixed(2) : "",
   },
   {
     key: "unitPrice",
-    header: "Preço Unitário",
-    get: (p) => (p.unitPrice != null ? Number(p.unitPrice).toFixed(2) : ""),
+    header: "Custo Unitário",
+    get: (p) =>
+      p.cost != null && p.unitsPerBox
+        ? (p.cost / p.unitsPerBox).toFixed(4)
+        : "",
   },
   { key: "lengthCm", header: "Comprimento (cm)", get: (p) => p.lengthCm ?? "" },
   { key: "widthCm", header: "Largura (cm)", get: (p) => p.widthCm ?? "" },

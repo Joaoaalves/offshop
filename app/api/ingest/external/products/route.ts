@@ -7,7 +7,7 @@ import { SelfProductRepository } from "@/repositories/self-product.repository";
 
 const FIELD_REMAP: Record<string, string> = {
   quantityPerBox: "unitsPerBox",
-  finalUnitPrice: "unitPrice",
+  finalUnitPrice: "priceWithTaxes",
 };
 
 const NUMERIC_FIELDS = new Set([
@@ -17,13 +17,8 @@ const NUMERIC_FIELDS = new Set([
   "weightKg",
   "chargeableWeightKg",
   "volumeM3",
-  "ipi",
-  "icms",
-  "difal",
-  "storageCost",
   "cost",
-  "tablePrice",
-  "unitPrice",
+  "priceWithTaxes",
   "unitsPerBox",
   "minStockDays",
   "kitQuantity",

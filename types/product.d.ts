@@ -20,16 +20,10 @@ export interface ISelfProduct {
   unitsPerBox?: number;
   supplier: ISupplier;
 
-  // Preços e impostos
-  tablePrice?: number;
-  cost: number;
-  icms?: number;
-  ipi?: number;
-  difal?: number;
-  storageCost?: number;
-  // Calculados (não persistidos)
-  priceWithTaxes?: number;
-  unitPrice?: number;
+  // Pricing — only two stored values
+  cost: number;         // box cost (what we pay per box)
+  priceWithTaxes?: number; // final unit cost with taxes (stored, from spreadsheet finalUnitPrice)
+  // unitPrice is derived at runtime: cost / unitsPerBox — NOT stored in DB
 
   // Dimensões e peso
   lengthCm?: number;

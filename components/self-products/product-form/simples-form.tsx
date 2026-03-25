@@ -23,7 +23,7 @@ interface Props {
 const EMPTY_FORM: Record<string, string> = {
   baseSku: "", name: "", imageUrl: "", manufacturerCode: "", ncm: "",
   unitsPerBox: "", supplierId: "",
-  tablePrice: "", icms: "0", ipi: "0", difal: "0", storageCost: "0",
+  cost: "", priceWithTaxes: "",
   lengthCm: "", widthCm: "", heightCm: "", volumeM3: "", weightKg: "",
   minStockDays: "30",
 };

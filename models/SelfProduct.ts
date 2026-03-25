@@ -19,14 +19,9 @@ const SelfProductSchema = new Schema<ISelfProduct>({
 
   supplier: { type: Schema.Types.ObjectId, ref: "Supplier" },
 
-  // Preços e impostos
-  tablePrice: { type: Number },
-  unitPrice: { type: Number },
-  cost: { type: Number, default: 0 },
-  icms: { type: Number, default: 0 },
-  ipi: { type: Number, default: 0 },
-  difal: { type: Number, default: 0 },
-  storageCost: { type: Number, default: 0 },
+  // Pricing
+  cost: { type: Number, default: 0 },          // box cost
+  priceWithTaxes: { type: Number },             // unit cost with taxes (from spreadsheet)
 
   // Dimensões e peso
   lengthCm: { type: Number },
