@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { toast } from "sonner";
-import { Loader2, Zap } from "lucide-react";
+import { Loader2, ShoppingCart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -100,8 +100,8 @@ export function PurchasesActionBar({ items }: Props) {
         disabled={!hasActions}
         className="h-8 gap-1.5 text-xs"
       >
-        <Zap className="h-3.5 w-3.5" />
-        Executar
+        <ShoppingCart className="h-3.5 w-3.5" />
+        Comprar
       </Button>
 
       <Dialog open={open} onOpenChange={setOpen}>

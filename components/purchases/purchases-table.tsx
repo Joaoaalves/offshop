@@ -1,13 +1,13 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { cn } from "@/lib/utils";
 import { usePurchases } from "@/hooks/use-purchases";
 import { PurchasesRow } from "./purchases-row";
 import { PurchasesActionBar } from "./purchases-action-bar";
 import { IPurchaseDashboardItem, PurchaseClassification } from "@/types/purchases";
 import { toast } from "sonner";
-import { Loader2, RefreshCw, Timer, Package } from "lucide-react";
+import { Loader2, RefreshCw, Timer, Package, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -79,6 +79,8 @@ function SupplierSection({
     value: PurchaseClassification | number | null,
   ) => Promise<void>;
 }) {
+  const [collapsed, setCollapsed] = useState(false);
+
   const orderCount = items.filter((i) => i.order && i.order > 0).length;
   const alertCount = items.filter(
     (i) =>
@@ -90,8 +92,17 @@ function SupplierSection({
   return (
     <div className="overflow-hidden rounded-lg border border-border shadow-sm">
       {/* Supplier header */}
-      <div className="flex items-center justify-between gap-4 border-b border-border bg-muted/20 px-4 py-2.5">
+      <div
+        className="flex cursor-pointer items-center justify-between gap-4 border-b border-border bg-muted/20 px-4 py-2.5 select-none"
+        onClick={() => setCollapsed((v) => !v)}
+      >
         <div className="flex min-w-0 items-center gap-2.5">
+          <ChevronDown
+            className={cn(
+              "h-3.5 w-3.5 shrink-0 text-muted-foreground transition-transform duration-200",
+              collapsed && "-rotate-90",
+            )}
+          />
           <div className="h-5 w-1 shrink-0 rounded-full bg-primary/50" />
           <span className="truncate text-sm font-semibold tracking-tight">{name}</span>
 
@@ -120,25 +131,29 @@ function SupplierSection({
           )}
         </div>
 
-        <PurchasesActionBar items={items} />
+        <div onClick={(e) => e.stopPropagation()}>
+          <PurchasesActionBar items={items} />
+        </div>
       </div>
 
       {/* Table */}
-      <div className="overflow-x-auto max-h-[80vh]">
-        <Table className="relative">
-          <PurchasesTableHead />
-          <TableBody>
-            {items.map((item, idx) => (
-              <PurchasesRow
-                key={item.baseSku}
-                item={item}
-                isEven={idx % 2 === 0}
-                onFieldSave={onFieldSave}
-              />
-            ))}
-          </TableBody>
-        </Table>
-      </div>
+      {!collapsed && (
+        <div className="overflow-x-auto max-h-[80vh]">
+          <Table className="relative">
+            <PurchasesTableHead />
+            <TableBody>
+              {items.map((item, idx) => (
+                <PurchasesRow
+                  key={item.baseSku}
+                  item={item}
+                  isEven={idx % 2 === 0}
+                  onFieldSave={onFieldSave}
+                />
+              ))}
+            </TableBody>
+          </Table>
+        </div>
+      )}
     </div>
   );
 }
